@@ -1,0 +1,81 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+
+<link rel="import" href="../bower_components/cube-auth/cube-auth.html">
+
+<link rel="import" href="./components/chris-footer.html">
+
+<dom-module id="chris-login">
+  <template>
+    <style include="shared-styles">
+      :host {
+        background-color: #03a9f4;
+        flex-direction: column;
+        display: flex;
+        overflow-y: auto;
+        /* justify-content: center;
+    align-items: safe center; */
+      }
+
+      cube-auth, button, chris-footer {
+        margin: auto;
+      }
+
+      chris-footer {
+        margin-bottom: 0;
+      }
+
+      cube-auth {
+        padding: 24px;
+        min-width: 368px;
+      }
+    </style>
+
+    <cube-auth
+      app-logo="{{appLogo}}"
+      app-title="{{appTitle}}"
+      server-ip="http://localhost"
+      server-port="8000"
+      server-namespace="api/v1"
+      on-login="_login"></cube-auth>
+    <chris-footer></chris-footer>
+  </template>
+
+  <script>
+    class ChrisLogin extends Polymer.Element {
+      static get is() { return 'chris-login'; }
+
+      static get properties() {
+        return {
+          appLogo: {
+            type: String,
+          },
+          appTitle: {
+            type: String,
+          },
+        };
+      }
+
+      _login(evt) {
+        console.log(evt);
+        window.sessionStorage.setItem('auth-token', evt.detail.token);
+        window.sessionStorage.setItem('auth-username', evt.detail.username);
+        window.sessionStorage.setItem('login', true);
+        this.dispatchEvent(
+          new CustomEvent('login', {detail: {login: true}}));
+      }
+    }
+
+    window.customElements.define(ChrisLogin.is, ChrisLogin);
+  </script>
+</dom-module>

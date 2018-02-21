@@ -1,0 +1,26 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="chris-footer">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        color: #424242;
+        padding: 10px;
+      }
+    </style>
+
+    <div>
+      CHRIS is a project of the Boston Children's Hospital, Boston University, Red Hat and the Massachussets Open Cloud (MOC)
+    </div>
+  </template>
+
+  <script>
+    class ChrisFooter extends Polymer.Element {
+      static get is() { return 'chris-footer'; }
+    }
+
+    window.customElements.define(ChrisFooter.is, ChrisFooter);
+  </script>
+</dom-module>

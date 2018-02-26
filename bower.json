@@ -15,7 +15,11 @@
     "paper-icon-button": "PolymerElements/paper-icon-button#^2.0.0",
     "polymer": "Polymer/polymer#^2.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
-    "cube-auth": "FNNDSC/cube-auth#master"
+    "cube-auth": "FNNDSC/cube-auth#master",
+    "iron-list": "^2.0.12",
+    "paper-spinner": "^2.1.0",
+    "iron-ajax": "^2.1.2",
+    "iron-scroll-threshold": "^1.0.2"
   },
   "resolutions": {
     "polymer": "^2.0.0"

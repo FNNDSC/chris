@@ -9,29 +9,164 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="chris-home">
   <template>
     <style include="shared-styles">
       :host {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        /* padding: 10px;
+        height: 100vh;
+        display: flex;
+        flex-direction: column; */
+      }
 
-        padding: 10px;
+
+      .loadingIndicator {
+        text-align: center;
+        height: 40px;
+      }
+      
+      paper-spinner {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+      }
+
+      iron-list {
+        /* flex: 1 1 auto; */
+        padding-top: 64px;
+        padding-bottom: 16px;
+        --iron-list-items-container: {
+          max-width: 800px;
+          margin: auto;
+          margin-top: 60px;
+          margin-bottom: 10px;
+        };
+      }
+
+      .personItem {
+        @apply --layout-horizontal;
+        margin: 16px 16px 0 16px;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: white;
+        border: 1px solid #ddd;
+      }
+
+      .avatar {
+        height: 40px;
+        width: 40px;
+        border-radius: 20px;
+        box-sizing: border-box;
+        background-color: #DDD;
+      }
+
+      .pad {
+        padding: 0 16px;
+        @apply --layout-flex;
+        @apply --layout-vertical;
+      }
+
+      .primary {
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      address {
+        font-size: 14px;
+        margin: 10px 0;
+      }
+
+      .spacer {
+        @apply --layout-flex;
+      }
+
+      .index {
+        width: 30px;
       }
     </style>
 
-    <div class="card">
-      <div class="circle">2</div>
-      <h1>Chris home</h1>
-      <p>Ea duis bonorum nec, falli paulo aliquid ei eum.</p>
-      <p>Id nam odio natum malorum, tibique copiosae expetenda mel ea.Detracto suavitate repudiandae no eum. Id adhuc minim soluta nam.Id nam odio natum malorum, tibique copiosae expetenda mel ea.</p>
+    <!-- https://github.com/PolymerElements/iron-list/blob/master/demo/scroll-threshold.html -->
+    <!-- https://www.webcomponents.org/element/PolymerElements/iron-scroll-threshold -->
+
+    <iron-ajax id="ajax"
+      auto
+      url="https://randomuser.me/api/"
+      params='{"results": 20}'
+      handle-as="json"
+      loading="{{loadingPeople}}"
+      on-response="_didRespond"></iron-ajax>
+
+    <iron-list id="list" items="[]" as="person" scroll-target="[[scrollTarget]]">
+      <template>
+        <div>
+          <div class="personItem" tabindex$="[[tabIndex]]">
+            <div class="pad">
+              <div class="primary">[[person.name.first]] [[person.name.last]]</div>
+              <address>
+                [[person.location.street]] [[person.city]] <br />
+                [[person.location.city]], [[person.location.state]] [[person.location.postcode]]
+              </address>
+            </div>
+          </div>
+        </div>
+      </template>
+    </iron-list>
+
+    <div class="loadingIndicator">
+      <paper-spinner active="{{loadingPeople}}"></paper-spinner> Fetching data
     </div>
+
+
+    <iron-scroll-threshold id="scrollTheshold"
+      lower-threshold="100"
+      on-lower-trigger="_load"
+      scroll-target="[[scrollTarget]]"></iron-scroll-threshold>
+
   </template>
 
   <script>
     class ChrisHome extends Polymer.Element {
       static get is() { return 'chris-home'; }
+
+      static get properties() {
+        return {
+          scrollTarget: {
+            type: HTMLElement,
+            observer: '_scrollTargetChanged',
+          },
+        };
+      }
+
+      _scrollTargetChanged() {
+        this.$.scrollTheshold.scrollTarget = this.scrollTarget;
+        this.$.scrollTheshold.setup();
+        this.$.scrollTheshold.clearLower();
+        this.$.scrollTheshold.clearUpper();
+      }
+    
+      _load() {
+        this.$.ajax.generateRequest();
+      }
+
+      _didRespond(e) {
+        const people = e.detail.response.results;
+        people.forEach(function(person) {
+          this.$.list.push('items', person);
+        }, this);
+        this.$.scrollTheshold.clearLower();
+        this.$.scrollTheshold.clearUpper();
+      }
     }
 
     window.customElements.define(ChrisHome.is, ChrisHome);

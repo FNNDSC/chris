@@ -20,6 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
 <link rel="import" href="chris-icons.html">
 
 <link rel="lazy-import" href="chris-home.html">
@@ -114,7 +115,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </app-drawer>
 
       <!-- Main content -->
-      <app-header-layout has-scrolling-region>
+      <app-header-layout
+        id="layout"
+        has-scrolling-region
+        >
 
         <app-header slot="header" fixed condenses reveals effects="waterfall">
           <app-toolbar>
@@ -129,8 +133,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             attr-for-selected="name"
             fallback-selection="view404"
             role="main">
-          <chris-home name="home"></chris-home>
-          <chris-feed name="feed"></chris-feed>
+          <chris-home name="home" scroll-target="[[scrollTarget]]"></chris-home>
+          <chris-feed name="feed" scroll-target="[[scrollTarget]]"></chris-feed>
           <chris-404 name="404"></chris-404>
         </iron-pages>
       </app-header-layout>
@@ -162,6 +166,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Polymer.Element#rootPath
           rootPath: String,
           username: String,
+          scrollTarget: HTMLElement,
         };
       }
 
@@ -169,6 +174,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return [
           '_routePageChanged(routeData.page)',
         ];
+      }
+
+      ready() {
+        super.ready();
+        this.scrollTarget =
+          this.$.layout.shadowRoot.querySelector('#contentContainer');
       }
 
       _routePageChanged(page) {

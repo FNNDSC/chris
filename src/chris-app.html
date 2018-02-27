@@ -23,6 +23,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="chris-icons.html">
 
+<link rel="lazy-import" href="chris-data.html">
+
 <link rel="lazy-import" href="chris-home.html">
 <link rel="lazy-import" href="chris-login.html">
 <link rel="lazy-import" href="chris-feed.html">
@@ -94,11 +96,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         tail="{{subroute}}">
     </app-route>
 
+    <chris-data
+      id="data"
+      ip="[[ip]]"
+      port="[[port]]"
+      namespace="[[namespace]]"></chris-data>
+
     <chris-login
       hidden$={{_loginPage(page)}}
       name="login"
       app-logo="{{appLogo}}"
       app-title="{{appTitle}}"
+      ip="[[ip]]"
+      port="[[port]]"
+      namespace="[[namespace]]"
       on-login="_loginSuccess"></chris-login>
 
     <app-drawer-layout
@@ -155,6 +166,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: String,
             value: 'chris',
           },
+          ip: {
+            type: String,
+            value: 'http://localhost',
+          },
+          port: {
+            type: String,
+            value: '8000',
+          },
+          namespace: {
+            type: String,
+            value: 'api/v1',
+          },
           page: {
             type: String,
             reflectToAttribute: true,
@@ -167,6 +190,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           rootPath: String,
           username: String,
           scrollTarget: HTMLElement,
+          feeds: {
+            type: Array,
+            value: () => [],
+          },
         };
       }
 
@@ -176,10 +203,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         ];
       }
 
-      ready() {
-        super.ready();
+      connectedCallback() {
+        super.connectedCallback();
         this.scrollTarget =
           this.$.layout.shadowRoot.querySelector('#contentContainer');
+
+        const login = window.sessionStorage.getItem('login');
+        if(login !== 'true' && this.page !== 'login') {
+          this.set('route.path', '/login/');
+        }
+
+        if (login === 'true' && this.page === 'login') {
+          this.set('route.path', '/home/');
+        }
+
+        if (login === 'true') {
+          // not working
+  //         setTimeout(() => {
+  //           console.log(this.$.data);
+  //           this.$.data.fetch();
+  // }, 0);
+          // requestAnimationFrame(() => this.$.data.testfetch());
+          // console.log();
+        }
       }
 
       _routePageChanged(page) {
@@ -194,15 +240,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _pageChanged(page) {
-        const login = window.sessionStorage.getItem('login');
-        if(login !== 'true' && page !== 'login') {
-          this.set('route.path', '/login/');
-        }
-
-        if (login === 'true' && page === 'login') {
-          this.set('route.path', '/home/');
-        }
-
         // Load page import on demand. Show 404 page if fails
         var resolvedPageUrl = this.resolveUrl('chris-' + page + '.html');
         Polymer.importHref(
@@ -220,6 +257,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.username = window.sessionStorage.getItem('auth-username');
         this.set('route.path', '/home/');
         this.$.drawerL.resetLayout();
+        // fetch feeds
+        this._fetchFeeds();
+      }
+
+      _fetchFeeds() {
+        console.log('go fetching');
+        // this.$.data.fetchFeeds(0, 20);
+        console.log(this.$.data);
       }
 
       _logout() {
@@ -227,6 +272,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         window.sessionStorage.setItem('auth-username', '');
         window.sessionStorage.setItem('login', false);
         this.username = '';
+        this.set('feeds', []);
         this.set('route.path', '/login/');
       }
 

@@ -44,9 +44,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <cube-auth
       app-logo="{{appLogo}}"
       app-title="{{appTitle}}"
-      server-ip="http://localhost"
-      server-port="8000"
-      server-namespace="api/v1"
+      server-ip="[[ip]]"
+      server-port="[[port]]"
+      server-namespace="[[namespace]]"
       on-login="_login"></cube-auth>
     <chris-footer></chris-footer>
   </template>
@@ -63,6 +63,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           appTitle: {
             type: String,
           },
+          ip: String,
+          port: String,
+          namespace: String,
         };
       }
 

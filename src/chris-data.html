@@ -1,0 +1,69 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/chips-api/chips-api.html">
+
+<!-- restart from scatch, something is wrong with it -->
+<dom-module id="chris-data">
+  <!-- <template>
+    <chips-api
+      id="API"
+      api="ultron"
+      api-root="[[ip]]:[[port]]/[[namespace]]">
+    </chips-api>
+
+    <div class="card">
+      chris data card
+    </div>
+  </template> -->
+
+  <script>
+    class ChrisData extends Polymer.Element {
+      static get is() { return 'chris-data'; }
+      static get properties() {
+        return {
+          ip: String,
+          port: String,
+          namespace: String,
+          feeds: {
+            type: Array,
+            value: () => [],
+          },
+        };
+      }
+
+            connectedCallback() {
+        super.connectedCallback();
+        this.fetch();
+        console.log('hi');
+            }
+
+      fetch(from, to, filter) {
+        const pageSize = to - from;
+
+        // through the API
+        var data = {};
+        data.auth = {
+          type: 'token',
+          token: sessionStorage.getItem('auth-token'),
+        };
+        data.params = {};
+        let searchSuffix = '';
+        if (filter.length >= 1) {
+          searchSuffix = 'Search';
+          for (let i = 0; i<filter.length; i++) {
+            data.params[filter[i].filter] = filter[i].value;
+          }
+        }
+        data.params.offset = from;
+        data.params.limit = pageSize;
+        data.params.page_size = pageSize;
+        this.$.API.request('GET', `feeds${searchSuffix}`, data);
+        // this.$.API.request('GET', 'feeds', data)
+          // .then(this._handleFeedsResponse.bind(this))
+          // .catch(this._handleFeedsError.bind(this));
+      }
+    }
+
+    window.customElements.define(ChrisData.is, ChrisData);
+  </script>
+</dom-module>

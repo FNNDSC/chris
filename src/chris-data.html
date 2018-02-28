@@ -1,20 +1,27 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
 <link rel="import" href="../bower_components/chips-api/chips-api.html">
 
 <!-- restart from scatch, something is wrong with it -->
 <dom-module id="chris-data">
-  <!-- <template>
+  <template>
     <chips-api
       id="API"
       api="ultron"
       api-root="[[ip]]:[[port]]/[[namespace]]">
     </chips-api>
 
-    <div class="card">
-      chris data card
-    </div>
-  </template> -->
+    <!-- https://github.com/PolymerElements/iron-list/blob/master/demo/scroll-threshold.html -->
+    <!-- https://www.webcomponents.org/element/PolymerElements/iron-scroll-threshold -->
+    <iron-ajax id="ajax"
+      url="https://randomuser.me/api/"
+      params='{"results": 20}'
+      handle-as="json"
+      loading="{{loadingPeople}}"
+      on-response="_didRespond"></iron-ajax>
+  </template>
 
   <script>
     class ChrisData extends Polymer.Element {
@@ -27,17 +34,12 @@
           feeds: {
             type: Array,
             value: () => [],
+            notify: true,
           },
         };
       }
 
-            connectedCallback() {
-        super.connectedCallback();
-        this.fetch();
-        console.log('hi');
-            }
-
-      fetch(from, to, filter) {
+      fetchFeeds(from, to, filter) {
         const pageSize = to - from;
 
         // through the API
@@ -47,20 +49,36 @@
           token: sessionStorage.getItem('auth-token'),
         };
         data.params = {};
-        let searchSuffix = '';
-        if (filter.length >= 1) {
-          searchSuffix = 'Search';
-          for (let i = 0; i<filter.length; i++) {
-            data.params[filter[i].filter] = filter[i].value;
-          }
-        }
         data.params.offset = from;
         data.params.limit = pageSize;
         data.params.page_size = pageSize;
-        this.$.API.request('GET', `feeds${searchSuffix}`, data);
-        // this.$.API.request('GET', 'feeds', data)
-          // .then(this._handleFeedsResponse.bind(this))
-          // .catch(this._handleFeedsError.bind(this));
+        // const feedQuery = this.$.API.request('GET', 'feeds', data);
+        // feedQuery
+        //   .then(this._handleFeedsResponse.bind(this))
+        //   .catch(this._handleFeedsError.bind(this));
+        console.log('fetch feeds');
+        const request = this.$.ajax.generateRequest();
+        request.completes
+          .then(this._handleFeedsResponse.bind(this))
+          .catch(this._handleFeedsError.bind(this));
+      }
+
+      _handleFeedsResponse(request) {
+        console.log(request.response);
+        const results = request.response.results;
+        console.log(this.feeds);
+        const feeds = [...this.feeds];
+        for (let i=0; i<results.length; i++) {
+          const result = results[i];
+          feeds.push(result);
+        }
+
+        this.set('feeds', feeds);
+        console.log(this.feeds);
+      }
+
+      _handleFeedsError(request) {
+        console.log(request.error);
       }
     }
 

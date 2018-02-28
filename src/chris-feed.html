@@ -9,6 +9,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/vaadin-upload/vaadin-upload.html">
+
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="chris-feed">
@@ -19,20 +22,60 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         padding: 10px;
       }
+
     </style>
 
     <div class="card">
       <div class="circle">3</div>
-      <h1>Chris feed</h1>
-      <p>Modus commodo minimum eum te, vero utinam assueverit per eu.</p>
-      <p>Ea duis bonorum nec, falli paulo aliquid ei eum.Has at minim mucius aliquam, est id tempor laoreet.Pro saepe pertinax ei, ad pri animal labores suscipiantur.</p>
+      <h1>Upload data</h1>
+     <vaadin-upload
+       id="requestDemo"
+       target="[[ip]]:[[port]]/[[namespace]]/uploadedfiles/"
+       method="POST"
+       timeout="300000"></vaadin-upload>
+
     </div>
   </template>
 
   <script>
     class ChrisFeed extends Polymer.Element {
       static get is() { return 'chris-feed'; }
+
+      static get properties() {
+        return {
+          ip: String,
+          port: String,
+          namespace: String,
+        };
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.upload = this.$.requestDemo;
+
+        this.upload.addEventListener('upload-request', (event) => {
+          event.preventDefault();
+          const token = window.sessionStorage.getItem('auth-token');
+
+          const formData = new FormData();
+          event.detail.xhr.setRequestHeader('Authorization', `Token ${token}`);
+
+          formData.append('fname', event.detail.file);
+          formData.append('upload_path', String(Date.now()));
+          event.detail.xhr.send(formData);
+        });
+
+
+        this.upload.addEventListener('upload-start', function(event) {
+          console.log('upload xhr after send: ', event.detail.xhr);
+        });
+      }
+
+
     }
+
+
 
     window.customElements.define(ChrisFeed.is, ChrisFeed);
   </script>

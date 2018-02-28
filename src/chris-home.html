@@ -11,7 +11,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
 
@@ -60,7 +59,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         padding: 20px;
         border-radius: 8px;
         background-color: white;
-        border: 1px solid #ddd;
+      }
+
+      .personItem :hover {
+        background-color: #e9e9e9;
       }
 
       .avatar {
@@ -73,18 +75,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       .pad {
         padding: 0 16px;
+        align-items: center;
         @apply --layout-flex;
-        @apply --layout-vertical;
+        @apply --layout-horizontal;
       }
 
       .primary {
         font-size: 16px;
         font-weight: bold;
+        justify-content: center;
+        @apply --layout-flex;
+        @apply --layout-horizontal;
       }
 
       address {
         font-size: 14px;
-        margin: 10px 0;
+        justify-content: center;
+        /* margin: 10px 0; */
+        @apply --layout-flex;
+        @apply --layout-horizontal;
       }
 
       .spacer {
@@ -94,24 +103,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .index {
         width: 30px;
       }
+      .avatar {
+        
+      }
     </style>
-
-    <!-- https://github.com/PolymerElements/iron-list/blob/master/demo/scroll-threshold.html -->
-    <!-- https://www.webcomponents.org/element/PolymerElements/iron-scroll-threshold -->
-
-    <iron-ajax id="ajax"
-      auto
-      url="https://randomuser.me/api/"
-      params='{"results": 20}'
-      handle-as="json"
-      loading="{{loadingPeople}}"
-      on-response="_didRespond"></iron-ajax>
 
     <iron-list id="list" items="[]" as="person" scroll-target="[[scrollTarget]]">
       <template>
         <div>
           <div class="personItem" tabindex$="[[tabIndex]]">
             <div class="pad">
+              <div class="avatar"></div>
               <div class="primary">[[person.name.first]] [[person.name.last]]</div>
               <address>
                 [[person.location.street]] [[person.city]] <br />
@@ -130,7 +132,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <iron-scroll-threshold id="scrollTheshold"
       lower-threshold="100"
-      on-lower-trigger="_load"
+      on-lower-trigger="_fetchNextFeeds"
       scroll-target="[[scrollTarget]]"></iron-scroll-threshold>
 
   </template>
@@ -145,7 +147,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: HTMLElement,
             observer: '_scrollTargetChanged',
           },
+          feeds: {
+            type: Array,
+            observer: '_feedsChanged',
+          },
         };
+      }
+
+      static get observers() {
+        return [
+          // Observer method name, followed by a list of dependencies, in parenthesis
+          // '_feedsChanged(feeds.*)',
+        ];
       }
 
       _scrollTargetChanged() {
@@ -155,14 +168,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.scrollTheshold.clearUpper();
       }
     
-      _load() {
-        this.$.ajax.generateRequest();
+      _fetchNextFeeds() {
+        console.log('fetch next feeds');
+        // fetch next 20 feeds
+        this.dispatchEvent(
+          new CustomEvent('fetch-next-feeds', {detail: {feeds: 20}}));
       }
 
-      _didRespond(e) {
-        const people = e.detail.response.results;
-        people.forEach(function(person) {
-          this.$.list.push('items', person);
+      _feedsChanged(feeds) {
+        console.log(feeds);
+        // if (feeds === []) {
+        //   return;
+        // }
+        feeds.forEach(function(feed) {
+          this.$.list.push('items', feed);
         }, this);
         this.$.scrollTheshold.clearLower();
         this.$.scrollTheshold.clearUpper();

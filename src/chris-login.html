@@ -70,7 +70,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _login(evt) {
-        console.log(evt);
         window.sessionStorage.setItem('auth-token', evt.detail.token);
         window.sessionStorage.setItem('auth-username', evt.detail.username);
         window.sessionStorage.setItem('login', true);

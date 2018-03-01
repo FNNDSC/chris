@@ -169,14 +169,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     
       _fetchNextFeeds() {
-        console.log('fetch next feeds');
         // fetch next 20 feeds
+        console.log('next');
         this.dispatchEvent(
           new CustomEvent('fetch-next-feeds', {detail: {feeds: 20}}));
       }
 
       _feedsChanged(feeds) {
-        console.log(feeds);
         // if (feeds === []) {
         //   return;
         // }

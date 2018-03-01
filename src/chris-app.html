@@ -23,12 +23,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="chris-icons.html">
 
-<link rel="import" href="chris-data.html">
+<link rel="import" href="chris-data-store.html">
 
 <link rel="lazy-import" href="chris-home.html">
 <link rel="lazy-import" href="chris-login.html">
-<link rel="lazy-import" href="chris-feed.html">
+<link rel="lazy-import" href="chris-data-browser.html">
+<link rel="lazy-import" href="chris-data-upload.html">
 <link rel="lazy-import" href="chris-404.html">
+<!-- File browser plugin -->
+<link rel="lazy-import" href="chris-filebrowser-plugin.html">
 
 <dom-module id="chris-app">
   <template>
@@ -96,12 +99,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         tail="{{subroute}}">
     </app-route>
 
-    <chris-data
-      id="data"
+    <chris-data-store
+      id="datastore"
       ip="[[ip]]"
       port="[[port]]"
       namespace="[[namespace]]"
-      feeds="{{feeds}}"></chris-data>
+      feeds="{{feeds}}"
+      data="{{data}}"
+      pluginsfs="{{pluginsfs}}"></chris-data-store>
 
     <chris-login
       hidden$={{_loginPage(page)}}
@@ -122,7 +127,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-toolbar>Welcome home, [[username]]</app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="home" href="[[rootPath]]home">Home</a>
-          <a name="feed" href="[[rootPath]]feed">Feed</a>
+          <a name="data-upload" href="[[rootPath]]data-upload">Data Upload</a>
+          <a name="data-browser" href="[[rootPath]]data-browser">Data Browser</a>
+          <a name="file-browser" href="[[rootPath]]filebrowser-plugin">Start file browser plugin</a>
         </iron-selector>
       </app-drawer>
 
@@ -150,11 +157,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             scroll-target="[[scrollTarget]]"
             feeds="[[feeds]]"
             on-fetch-next-feeds="_fetchFeeds"></chris-home>
-          <chris-feed
-            name="feed"
+          <chris-data-upload
+            name="data-upload"
             ip="[[ip]]"
             port="[[port]]"
-            namespace="[[namespace]]"></chris-feed>
+            namespace="[[namespace]]"></chris-data-upload>
+          <chris-data-browser
+            name="data-browser"
+            ip="[[ip]]"
+            port="[[port]]"
+            namespace="[[namespace]]"
+            data="[[data]]"
+            on-fetch-data="_fetchData"></chris-data-browser>
+          <chris-filebrowser-plugin
+            name="filebrowser-plugin"
+            ip="[[ip]]"
+            port="[[port]]"
+            namespace="[[namespace]]"
+            data="[[data]]"
+            plugins="[[pluginsfs]]"
+            on-fetch-data="_fetchData"></chris-filebrowser-plugin>
           <chris-404 name="404"></chris-404>
         </iron-pages>
       </app-header-layout>
@@ -223,7 +245,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         if (login === 'true') {
-          this.$.data.fetchFeeds(0, 20);
+          this.$.datastore.initDatastore();
         }
       }
 
@@ -256,13 +278,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.username = window.sessionStorage.getItem('auth-username');
         this.set('route.path', '/home/');
         this.$.drawerL.resetLayout();
-        // fetch feeds
-        this._fetchFeeds();
+        this.$.datastore.initDatastore();
       }
 
-      _fetchFeeds() {
-        console.log('_fetchFeeds');
-        this.$.data.fetchFeeds(0, 20);
+      _fetchFeeds(event) {
+        const next = event.detail.feeds;
+        this.$.datastore.fetchFeeds(0, next);
+      }
+
+      _fetchData() {
+        this.$.datastore.fetchData();
       }
 
       _logout() {
@@ -270,7 +295,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         window.sessionStorage.setItem('auth-username', '');
         window.sessionStorage.setItem('login', false);
         this.username = '';
-        this.set('feeds', []);
+        this.$.datastore.cleanDatastore();
+
+        // redirect to login page once state is clean
         this.set('route.path', '/login/');
       }
 

@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="chris-feed">
+<dom-module id="chris-data-upload">
   <template>
     <style include="shared-styles">
       :host {
@@ -38,8 +38,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   <script>
-    class ChrisFeed extends Polymer.Element {
-      static get is() { return 'chris-feed'; }
+    class ChrisDataUpload extends Polymer.Element {
+      static get is() { return 'chris-data-upload'; }
 
       static get properties() {
         return {
@@ -61,8 +61,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           const formData = new FormData();
           event.detail.xhr.setRequestHeader('Authorization', `Token ${token}`);
 
-          formData.append('fname', event.detail.file);
-          formData.append('upload_path', String(Date.now()));
+          const file = event.detail.file;
+          formData.append('fname', file);
+          formData.append(
+            'upload_path', String(Date.now()) + '/' + event.detail.file.name);
           event.detail.xhr.send(formData);
         });
 
@@ -77,6 +79,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
 
-    window.customElements.define(ChrisFeed.is, ChrisFeed);
+    window.customElements.define(ChrisDataUpload.is, ChrisDataUpload);
   </script>
 </dom-module>

@@ -5,6 +5,9 @@
     "src/chris-login.html",
     "src/chris-home.html",
     "src/chris-feed.html",
+    "src/chris-data-upload.html",
+    "src/chris-data-browser.html",
+    "src/chris-filebrowser-plugin.html",
     "src/chris-404.html"
   ],
   "sources": [

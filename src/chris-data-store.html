@@ -1,0 +1,178 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../bower_components/chips-api/chips-api.html">
+
+<!-- restart from scatch, something is wrong with it -->
+<dom-module id="chris-data-store">
+  <template>
+    <chips-api
+      id="API"
+      api="ultron"
+      api-root="[[ip]]:[[port]]/[[namespace]]">
+    </chips-api>
+
+    <!-- https://github.com/PolymerElements/iron-list/blob/master/demo/scroll-threshold.html -->
+    <!-- https://www.webcomponents.org/element/PolymerElements/iron-scroll-threshold -->
+    <iron-ajax id="ajax"
+      url="https://randomuser.me/api/"
+      params='{"results": 20}'
+      handle-as="json"
+      loading="{{loadingPeople}}"
+      on-response="_didRespond"></iron-ajax>
+  </template>
+
+  <script>
+    class ChrisDataStore extends Polymer.Element {
+      static get is() { return 'chris-data-store'; }
+      static get properties() {
+        return {
+          ip: String,
+          port: String,
+          namespace: String,
+          feeds: {
+            type: Array,
+            value: () => [],
+            notify: true,
+          },
+          data: {
+            type: Array,
+            value: () => [],
+            notify: true,
+          },
+          pluginsfs: {
+            type: Array,
+            value: () => [],
+            notify: true,
+          },
+          pluginsds: {
+            type: Array,
+            value: () => [],
+            notify: true,
+          },
+        };
+      }
+
+
+      initDatastore() {
+        // get last 20 feeds
+        this.fetchFeeds(0, 20);
+        // get plugins
+        this.fetchPlugins();
+      }
+
+      cleanDatastore() {
+        this.set('data', []);
+        this.set('feeds', []);
+        this.set('pluginsfs', []);
+        this.set('pluginsds', []);
+      }
+
+      fetchFeeds(from, to, filter) {
+        const pageSize = to - from;
+
+        // through the API
+        var data = {};
+        data.auth = {
+          type: 'token',
+          token: sessionStorage.getItem('auth-token'),
+        };
+        data.params = {};
+        data.params.offset = from;
+        data.params.limit = pageSize;
+        data.params.page_size = pageSize;
+        // const feedQuery = this.$.API.request('GET', 'feeds', data);
+        // feedQuery
+        //   .then(this._handleFeedsResponse.bind(this))
+        //   .catch(this._handleFeedsError.bind(this));
+        const request = this.$.ajax.generateRequest();
+        request.completes
+          .then(this._handleFeedsResponse.bind(this))
+          .catch(this._handleFeedsError.bind(this));
+      }
+
+      _didRespond() {
+        console.log('did respond');
+      }
+
+      _handleFeedsResponse(request) {
+        const results = request.response.results;
+        const feeds = [...this.feeds];
+        for (let i=0; i<results.length; i++) {
+          const result = results[i];
+          feeds.push(result);
+        }
+
+        this.set('feeds', feeds);
+      }
+
+      _handleFeedsError(request) {
+        console.log(request.error);
+      }
+
+      fetchPlugins() {
+        // through the API
+        var data = {};
+        data.auth = {
+          type: 'token',
+          token: sessionStorage.getItem('auth-token'),
+        };
+        data.params = {};
+        data.params.limit = 9999;
+        data.params.page_size = 9999;
+        this.$.API.request('GET', 'plugins', data)
+          .then(this._handlePluginsResponse.bind(this))
+          .catch(this._handlePluginsError.bind(this));
+      }
+
+      _handlePluginsResponse(response) {
+        const data = response.data;
+
+        const pluginsfs = [];
+        const pluginsds = [];
+        for (let i=0; i<data.length; i++) {
+          if (data[i].data.type === 'fs') {
+            pluginsfs.push(data[i]);
+          } else {
+            pluginsds.push(data[i]);
+          }
+        }
+
+        this.set('pluginsfs', pluginsfs);
+        this.set('pluginsds', pluginsds);
+      }
+
+      _handlePluginsError(response) {
+        console.log(response);
+      }
+
+      fetchData() {
+        // prepare data
+        const data = {};
+        data.auth = {
+          type: 'token',
+          token: sessionStorage.getItem('auth-token'),
+        };
+        data.params = {};
+        data.params.offset = 0;
+        data.params.limit = 9999;
+        data.params.page_size = 9999;
+
+        // need to pass username and password
+        // add users in chris api
+        const request = this.$.API.request('GET', 'data', data);
+        request
+          .then((response) => {
+            this.set('data', response.data);
+            console.log(this.data);
+          })
+          .catch((response) => {
+            console.log(response);
+          });
+      }
+    }
+
+    window.customElements.define(ChrisDataStore.is, ChrisDataStore);
+  </script>
+</dom-module>

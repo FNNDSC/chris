@@ -1,0 +1,30 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<dom-module id="chris-parameter-string">
+  <template>
+
+    <paper-input value="{{value}}" label="[[label]]"></paper-input>
+
+  </template>
+
+  <script>
+    class ChrisParameterString extends Polymer.Element {
+      static get is() {
+        return 'chris-parameter-string';
+      }
+      static get properties() {
+        return {
+          value: {
+            type: String,
+            notify: true,
+          },
+          label: String,
+        };
+      }
+    }
+    window.customElements.define(ChrisParameterString.is, ChrisParameterString);
+  </script>
+</dom-module>

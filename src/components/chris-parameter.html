@@ -1,0 +1,93 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+
+<link rel="import" href="./chris-parameter-boolean.html">
+<link rel="import" href="./chris-parameter-number.html">
+<link rel="import" href="./chris-parameter-string.html">
+
+<dom-module id="chris-parameter">
+  <template>
+    <style>
+      .parameter {
+        display: flex;
+      }
+      chris-parameter-string, chris-parameter-number, chris-parameter-boolean {
+        flex: 1
+      }
+    </style>
+
+    <div class="parameter">
+      <template is="dom-if" if="{{_isString(type)}}">
+        <chris-parameter-string value="{{value}}" label="{{name}}"></chris-parameter-string>
+      </template>
+
+      <template is="dom-if" if="{{_isBoolean(type)}}">
+        <chris-parameter-boolean value="{{value}}" label="{{name}}"></chris-parameter-boolean>
+      </template>
+
+      <template is="dom-if" if="{{_isInteger(type)}}">
+        <chris-parameter-number value="{{value}}" step="1" label="{{name}}"></chris-parameter-number>
+      </template>
+
+      <template is="dom-if" if="{{_isFloat(type)}}">
+        <chris-parameter-number value="{{value}}" step="0.00000001" label="{{name}}"></chris-parameter-number>
+      </template>
+
+      <paper-icon-button id="help" icon="help-outline" alt="help"></paper-icon-button>
+      <paper-tooltip for="help" animation-delay="0.2">{{help}}</paper-tooltip>
+    </div>
+
+  </template>
+
+  <script>
+    class ChrisParameter extends Polymer.Element {
+      static get is() {
+        return 'chris-parameter';
+      }
+      static get properties() {
+        return {
+          default: {
+            type: String,
+            observer: '_defaultChanged',
+          },
+          help: String,
+          name: String,
+          type: String,
+          value: {
+            type: String,
+            notify: true,
+          },
+        };
+      }
+      _isString(type) {
+        return type === 'string' || type === 'path';
+      }
+    
+      _isBoolean(type) {
+        return type === 'boolean';
+      }
+
+      _isInteger(type) {
+        return type === 'integer';
+      }
+
+      _isFloat(type) {
+        return type === 'float';
+      }
+
+      _defaultChanged(defaultValue) {
+        this.value = defaultValue;
+      }
+
+      reset() {
+        this.value = this.default;
+      }
+    }
+    window.customElements.define(ChrisParameter.is, ChrisParameter);
+  </script>
+</dom-module>

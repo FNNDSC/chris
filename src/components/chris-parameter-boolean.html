@@ -1,0 +1,38 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+
+<dom-module id="chris-parameter-boolean">
+  <template>
+    <style>
+      :host {
+        padding: 8px 0;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 24px;
+        margin-top: 22px;
+      }
+    </style>
+
+    <paper-checkbox checked="{{value}}"></paper-checkbox> [[label]]
+
+  </template>
+
+  <script>
+    class ChrisParameterBoolean extends Polymer.Element {
+      static get is() {
+        return 'chris-parameter-boolean';
+      }
+      static get properties() {
+        return {
+          value: {
+            type: String,
+            notify: true,
+          },
+          label: String,
+        };
+      }
+    }
+    window.customElements.define(ChrisParameterBoolean.is, ChrisParameterBoolean);
+  </script>
+</dom-module>

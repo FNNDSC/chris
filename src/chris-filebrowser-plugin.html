@@ -11,9 +11,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
 
-<link rel="import" href="../bower_components/chips-api/behaviors/chips-plugin-behavior.html">
-
 <link rel="import" href="shared-styles.html">
+
+<link rel="import" href="./components/chris-parameter.html">
+
 
 <dom-module id="chris-filebrowser-plugin">
   <template>
@@ -33,7 +34,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <button on-click="_startPlugin">Start plugin</button>
       <dom-repeat items="[[plugins]]">
         <template>
-          <div># [[item.data.name]]</div>
+          <div># [[item.data.name]] : [[item.parameters.length]] parameters</div>
+          <div>
+            <dom-repeat items="[[item.parameters]]">
+              <template>
+                <chris-parameter
+                  name="{{item.data.name}}"
+                  type="{{item.data.type}}"
+                  help="{{item.data.help}}"
+                  default="{{item.data.default}}"
+                  on-value-changed="_valueChanged"
+                  ></chris-parameter>
+              </template>
+              </dom-repeat>
+          </div>
        </template>
       </dom-repeat>
 
@@ -49,7 +63,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   <script>
-    class ChrisFilerowserPlugin extends CHIPSPluginBehavior(Polymer.Element) {
+    class ChrisFilerowserPlugin extends Polymer.Element {
       static get is() { return 'chris-filebrowser-plugin'; }
 
       static get properties() {
@@ -67,6 +81,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           new CustomEvent('fetch-data', {detail: {}}));
       }
 
+      _findPlugin(targetPluginName, currentPlugin) {
+        return currentPlugin.data.name === targetPluginName;
+      }
+
       _startPlugin() {
         // start plugin sequence
         const data = {};
@@ -78,66 +96,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // add templates
         data.body = {};
         data.body.template = {};
-        data.body.template.data = [];
+        data.body.template.data = [
+          {name: 'dir', value: ''},
+        ];
 
-        // add data
-            // data.body = {};
-    // data.body.template = {};
-    // data.body.template.data = [
-            //     data.body.template.data.push(
-    //       {name: 'patient_id', value: ''});
-    //     data.body.data['patient_id'] = formattedPID;
-    console.log(this.plugins);
-        // const start = this.__startPlugin(this.$.API, this.target, data);
-        // start.then(this.__wait.bind(this, 1000))
-        //   .then((response) => {
-        //     this.push('loadingSteps', 'Waiting for answer...');
-        //     return response;
-        //   })
-        //   .then(this.__waitEndPlugin.bind(this, this.$.API, data))
-        //   .then((response) => console.log(response))
-        //   .catch((response) => console.log(response));
+        data.body.data = {};
+        data.body.data['dir'] = './';
+
+        const simpleFSApp =
+          this.plugins.filter(this._findPlugin.bind(this, 'simplefsapp'))[0];
+        const instance = simpleFSApp.links.instances;
+
+        this.dispatchEvent(
+          new CustomEvent('run-plugin', {
+            detail: {
+              instance,
+              data,
+            },
+          }));
       }
-
-
-    // };
-    // //
-    // data.body = {};
-    // data.body.template = {};
-    // data.body.template.data = [
-    //   {name: 'aet', value: ''},
-    //   {name: 'aec', value: ''},
-    //   {name: 'server_ip', value: ''},
-    //   {name: 'server_port', value: ''},
-    // ];
-    // data.body.data = this.settings;
-    // const validPID = this.validatePatientID();
-    // if (validPID) {
-    //   const formattedPID = this.formatPatientID();
-    //   if (formattedPID !== '') {
-    //     data.body.template.data.push(
-    //       {name: 'patient_id', value: ''});
-    //     data.body.data['patient_id'] = formattedPID;
-    //   }
-    // }
-    // this.loading = true;
-    // this.loadingSteps = [];
-    // this.loadingSteps.push('Starting PACS Query...');
-    // // ready to start the query sequence!
-    // const start = this.__startPlugin(this.$.API, this.target, data);
-    // start.then((response) => {
-    //     // console.log(response);
-    //     this.instance = Number(response.data[0].data.id);
-    //     this.push('loadingSteps', 'Contacting the PACS Server...');
-    //     return response;
-    //   })
-    //   // https://github.com/FNNDSC/ChRIS_ultron_backEnd/issues/17
-    //   .then(this.__wait.bind(this, 1000))
-    //   .then((response) => {
-    //     this.push('loadingSteps', 'Waiting for answer...');
-    //     return response;
-    //   })
-    //   .then(this.__waitEndPlugin.bind(this, this.$.API, data))
     }
 
     window.customElements.define(ChrisFilerowserPlugin.is, ChrisFilerowserPlugin);

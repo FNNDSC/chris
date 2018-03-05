@@ -176,7 +176,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             namespace="[[namespace]]"
             data="[[data]]"
             plugins="[[pluginsfs]]"
-            on-fetch-data="_fetchData"></chris-filebrowser-plugin>
+            on-fetch-data="_fetchData"
+            on-run-plugin="_runPlugin"></chris-filebrowser-plugin>
           <chris-404 name="404"></chris-404>
         </iron-pages>
       </app-header-layout>
@@ -288,6 +289,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _fetchData() {
         this.$.datastore.fetchData();
+      }
+
+      _runPlugin(event) {
+        this.$.datastore.runPlugin(event.detail);
       }
 
       _logout() {

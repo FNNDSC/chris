@@ -25,11 +25,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="chris-data-store.html">
 
-<link rel="lazy-import" href="chris-home.html">
-<link rel="lazy-import" href="chris-login.html">
+<!-- pages from the app -->
+<link rel="lazy-import" href="chris-404.html">
 <link rel="lazy-import" href="chris-data-browser.html">
 <link rel="lazy-import" href="chris-data-upload.html">
-<link rel="lazy-import" href="chris-404.html">
+<link rel="lazy-import" href="chris-feed.html">
+<link rel="lazy-import" href="chris-home.html">
+<link rel="lazy-import" href="chris-login.html">
+
 <!-- File browser plugin -->
 <link rel="lazy-import" href="chris-filebrowser-plugin.html">
 
@@ -88,15 +91,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <app-location
-        route="{{route}}"
-        url-space-regex="^[[rootPath]]">
+      route="{{route}}"
+      url-space-regex="^[[rootPath]]">
     </app-location>
 
     <app-route
-        route="{{route}}"
-        pattern="[[rootPath]]:page"
-        data="{{routeData}}"
-        tail="{{subroute}}">
+      route="{{route}}"
+      pattern="[[rootPath]]:page"
+      data="{{routeData}}"
+      tail="{{subroute}}">
+    </app-route>
+
+    <app-route
+      route="{{subroute}}"
+      pattern="/:id"
+      data="{{subrouteData}}">
     </app-route>
 
     <chris-data-store
@@ -104,6 +113,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ip="[[ip]]"
       port="[[port]]"
       namespace="[[namespace]]"
+      active-feed="{{activeFeed}}"
       feeds="{{feeds}}"
       data="{{data}}"
       pluginsfs="{{pluginsfs}}"></chris-data-store>
@@ -130,6 +140,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <a name="data-upload" href="[[rootPath]]data-upload">Data Upload</a>
           <a name="data-browser" href="[[rootPath]]data-browser">Data Browser</a>
           <a name="file-browser" href="[[rootPath]]filebrowser-plugin">Start file browser plugin</a>
+          <a name="feed" href="[[rootPath]]feed">Active feed</a>
         </iron-selector>
       </app-drawer>
 
@@ -156,7 +167,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             name="home"
             scroll-target="[[scrollTarget]]"
             feeds="[[feeds]]"
-            on-fetch-next-feeds="_fetchFeeds"></chris-home>
+            on-fetch-next-feeds="_fetchFeeds"
+            on-open-feed="_openFeed"></chris-home>
           <chris-data-upload
             name="data-upload"
             ip="[[ip]]"
@@ -178,6 +190,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             plugins="[[pluginsfs]]"
             on-fetch-data="_fetchData"
             on-run-plugin="_runPlugin"></chris-filebrowser-plugin>
+          <chris-feed
+            name="feed"
+            feed="{{activeFeed}}"></chris-feed>
           <chris-404 name="404"></chris-404>
         </iron-pages>
       </app-header-layout>
@@ -217,6 +232,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           routeData: Object,
           subroute: String,
+          subrouteData: Object,
           // This shouldn't be neccessary, but the Analyzer isn't picking up
           // Polymer.Element#rootPath
           rootPath: String,
@@ -262,6 +278,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _pageChanged(page) {
+        // load information about a feed if we open a feed page
+        if (page === 'feed') {
+          this.$.datastore.getDetailsFromFeed(this.subrouteData.id);
+        }
+
         // Load page import on demand. Show 404 page if fails
         var resolvedPageUrl = this.resolveUrl('chris-' + page + '.html');
         Polymer.importHref(
@@ -308,6 +329,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _loginPage(page) {
         return page !== 'login';
+      }
+
+      _openFeed(event) {
+        const id = event.detail.feed.data.id;
+        this.set('route.path', `/feed/${id}`);
       }
     }
 

@@ -59,10 +59,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         padding: 20px;
         border-radius: 8px;
         background-color: white;
+        border: 1px solid white;
       }
 
-      .personItem :hover {
-        background-color: #e9e9e9;
+      .personItem:hover {
+        background-color: #b3e5fc;
+        cursor: pointer;
       }
 
       .avatar {
@@ -71,6 +73,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         border-radius: 20px;
         box-sizing: border-box;
         background-color: #DDD;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
 
       .pad {
@@ -88,7 +93,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply --layout-horizontal;
       }
 
-      address {
+      .status {
         font-size: 14px;
         justify-content: center;
         /* margin: 10px 0; */
@@ -108,17 +113,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
 
-    <iron-list id="list" items="[]" as="person" scroll-target="[[scrollTarget]]">
+    <iron-list id="list" items="[]" as="feed" scroll-target="[[scrollTarget]]">
       <template>
-        <div>
+        <div class="feed" on-click="_openFeed">
           <div class="personItem" tabindex$="[[tabIndex]]">
             <div class="pad">
-              <div class="avatar"></div>
-              <div class="primary">[[person.name.first]] [[person.name.last]]</div>
-              <address>
-                [[person.location.street]] [[person.city]] <br />
-                [[person.location.city]], [[person.location.state]] [[person.location.postcode]]
-              </address>
+              <div class="avatar">[[feed.data.id]]</div>
+              <div class="primary">[[feed.data.name]]</div>
+              <div class="status">
+                Last update: [[feed.data.modification_date]]
+              </div>
             </div>
           </div>
         </div>
@@ -170,20 +174,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     
       _fetchNextFeeds() {
         // fetch next 20 feeds
-        console.log('next');
         this.dispatchEvent(
           new CustomEvent('fetch-next-feeds', {detail: {feeds: 20}}));
       }
 
       _feedsChanged(feeds) {
-        // if (feeds === []) {
-        //   return;
-        // }
-        feeds.forEach(function(feed) {
-          this.$.list.push('items', feed);
-        }, this);
+        // need to be smarter here
+        // check if pre-pend or append
+        if (
+          this.$.list.items.length > 0 &&
+          feeds[0].data.id !== this.$.list.items[0].data.id) {
+          // pre-pend
+          this.$.list.unshift('items', feeds[0]);
+        } else {
+          // append
+          feeds.forEach(function(feed) {
+            this.$.list.push('items', feed);
+          }, this);
+        }
+
         this.$.scrollTheshold.clearLower();
         this.$.scrollTheshold.clearUpper();
+      }
+
+      _openFeed(event) {
+        const feed = event.model.__data.feed;
+        this.dispatchEvent(
+          new CustomEvent('open-feed', {detail: {feed}}));
       }
     }
 

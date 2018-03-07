@@ -33,8 +33,8 @@
           port: String,
           namespace: String,
           activeFeed: {
-            type: Object,
-            value: () => {},
+            type: Array,
+            value: () => [],
             notify: true,
           },
           feeds: {
@@ -69,7 +69,7 @@
       }
 
       cleanDatastore() {
-        this.set('activeFeed', {});
+        this.set('activeFeed', []);
         this.set('data', []);
         this.set('feeds', []);
         this.set('pluginsfs', []);
@@ -82,16 +82,34 @@
         start
           .then((response) => {
             // add feed to the list of feeds
-            console.log(response);
-            this.set('feeds', [response.data[0], ...this.feeds]);
-            console.log(this.feeds);
-            return response;
+            return this.fetchFeedFromLink(response.data[0].links.feed)
+            .then(() => response);
           })
           .then(this.__wait.bind(this, 1000))
           .then(this.__waitEndPlugin.bind(this, this.$.API, payload.data))
           .then((response) => console.log(response))
           .catch((response) => console.log(response));
+      }
 
+      fetchFeedFromLink(link) {
+        // through the API
+        var data = {};
+        data.auth = {
+          type: 'token',
+          token: sessionStorage.getItem('auth-token'),
+        };
+        const feedQuery = this.$.API.request('GET', link, data);
+        return feedQuery
+          .then(this._handleFeedFromLinkResponse.bind(this))
+          .catch(this._handleFeedFromLinkError.bind(this));
+      }
+
+      _handleFeedFromLinkResponse(response) {
+        this.set('feeds', [response.data[0], ...this.feeds]);
+      }
+
+      _handleFeedFromLinkError(request) {
+        console.log(request.error);
       }
 
       fetchFeeds(from, to, filter) {
@@ -234,16 +252,44 @@
           });
       }
 
-      getDetailsFromFeed(feedId) {
+      fetchPluginInstancesFromFeed(feedId) {
         this.set('activeFeed', {});
-        this.set('activeFeed', {
-          id: feedId,
-          }
-        );
-        // 1- get feed
-        // http://localhost:8000/api/v1/8/
+
+        // 1- get feed in the list of feeds
         // 2- get all instances
         // http://localhost:8000/api/v1/plugins/instances/8/
+        // 3- order the instances
+
+        // prepare data
+        const data = {};
+        data.auth = {
+          type: 'token',
+          token: sessionStorage.getItem('auth-token'),
+        };
+        data.params = {};
+        data.params.offset = 0;
+        data.params.limit = 9999;
+        data.params.page_size = 9999;
+        // what if no feeds yet?
+        console.log(this.feeds);
+        const request = this.$.API.request('GET', `/plugins/instances/${feedId}/`, data);
+            request
+              .then((response) => {
+                console.log(response);
+                this.set('activeFeed', response.data
+        );
+              })
+              .catch((response) => {
+                console.log(response);
+              });
+
+        for (let i=0; i<this.feeds.length; i++) {
+          console.log(this.feeds);
+          const feed = this.feeds[i];
+          if (feed.data.id === feedId) {
+            break;
+          }
+        }
       }
     }
 

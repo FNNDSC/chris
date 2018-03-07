@@ -116,6 +116,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       active-feed="{{activeFeed}}"
       feeds="{{feeds}}"
       data="{{data}}"
+      pluginsds="{{pluginsds}}"
       pluginsfs="{{pluginsfs}}"></chris-data-store>
 
     <chris-login
@@ -192,7 +193,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             on-run-plugin="_runPlugin"></chris-filebrowser-plugin>
           <chris-feed
             name="feed"
-            feed="{{activeFeed}}"></chris-feed>
+            feed="{{activeFeed}}"
+            plugins="[[pluginsds]]"></chris-feed>
           <chris-404 name="404"></chris-404>
         </iron-pages>
       </app-header-layout>
@@ -280,7 +282,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _pageChanged(page) {
         // load information about a feed if we open a feed page
         if (page === 'feed') {
-          this.$.datastore.getDetailsFromFeed(this.subrouteData.id);
+          this.$.datastore.fetchPluginInstancesFromFeed(this.subrouteData.id);
         }
 
         // Load page import on demand. Show 404 page if fails

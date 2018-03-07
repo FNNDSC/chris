@@ -9,18 +9,110 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
+
+
+ <!-- Ensure Web Animations polyfill is loaded since neon-animation 2.0 doesn't import it -->
+ <!-- Needed for the dropdown menu -->
+ <link rel="import" href="../bower_components/neon-animation/web-animations.html">
+
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+
+
 <link rel="import" href="shared-styles.html">
+
+<link rel="import" href="./components/chris-parameter.html">
 
 <dom-module id="chris-feed">
   <template>
     <style include="shared-styles">
       :host {
-        display: block;
+        display: flex;
         padding: 10px;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      paper-card {
+        width: 100%;
+      }
+
+      @media (min-width: 860px) {
+        paper-card {
+          max-width: 800px;
+        }
+      }
+
+      [hidden] {
+        display: none;
       }
     </style>
 
-    Welcome to the feed: [[feed.id]]
+    Welcome to the feed: [[feed.0.data.id]].
+    It contains [[feed.length]] plugins.
+
+    <button on-click="_addItem">Add item</button>
+
+    <div hidden$="[[!addItem]]">
+      <paper-card>
+        <div class="card-content">
+          <div>
+            Pick a plugin:
+            <paper-dropdown-menu label="Plugins">
+                <paper-listbox slot="dropdown-content" selected="{{selectedPluginIndex}}">
+                  <dom-repeat items="[[plugins]]">
+                    <template>
+                      <paper-item>[[item.data.name]]</paper-item>
+                    </template>
+                  </dom-repeat>
+                </paper-listbox>
+              </paper-dropdown-menu>
+          </div>
+        </div>
+        <div class="card-content">
+          <dom-repeat  id="test" items="[[plugins]]" filter="_isPluginSelected">
+            <template>
+              <div>
+                <dom-repeat items="[[item.parameters]]">
+                  <template>
+                    <chris-parameter
+                      name="{{item.data.name}}"
+                      type="{{item.data.type}}"
+                      help="{{item.data.help}}"
+                      default="{{item.data.default}}"
+                      on-value-changed="_valueChanged"
+                      ></chris-parameter>
+                  </template>
+                  </dom-repeat>
+              </div>
+            </template>
+          </dom-repeat>
+        </div>
+        <div class="card-actions">
+          <paper-button>Reset parameters</paper-button>
+          <paper-button>Run</paper-button>
+        </div>
+      </paper-card>
+    </div>
+
+    Plugin instances:
+    <dom-repeat items="[[feed]]">
+      <template>
+        <paper-card heading="[[item.data.plugin_name]]" alt="[[item.data.plugin_name]]">
+          <div class="card-content">
+            ID: [[item.data.id]] by ID: [[item.data.owner]] status: [[item.data.status]]
+          </div>
+          <div class="card-actions">
+            <paper-button>Share</paper-button>
+            <paper-button>Explore!</paper-button>
+          </div>
+        </paper-card>
+      </template>
+    </dom-repeat>
   </template>
 
   <script>
@@ -29,8 +121,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       static get properties() {
         return {
-          feed: Object,
+          feed: Array,
+          plugins: Array,
+          addItem: {
+            type: Boolean,
+            value: false,
+          },
+          selectedPluginIndex: {
+            type: Number,
+            value: -1,
+            observer: '_selectedPluginIndexChanged',
+          },
         };
+      }
+
+      _selectedPluginIndexChanged() {
+        this.$.test.render();
+      }
+
+      _addItem() {
+        // scroll to TOP
+        this.addItem = true;
+      }
+
+      _isPluginSelected(plugin) {
+        const index = this.plugins.indexOf(plugin);
+        return index === this.selectedPluginIndex;
+      }
+
+      _valueChanged(value) {
+        // console.log(value);
       }
     }
 

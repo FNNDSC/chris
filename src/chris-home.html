@@ -179,22 +179,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _feedsChanged(feeds) {
-        // need to be smarter here
+        // need to be smarter here: why?
         // check if pre-pend or append
-        if (
+        // user obser feeds.* to check if a specific property changed?
+        if (feeds.length === 0 || this.$.list.items.length === 0) {
+          // set / reset
+          this.$.list.set('items', [...feeds]);
+        } else if (
           this.$.list.items.length > 0 &&
           feeds[0].data.id !== this.$.list.items[0].data.id) {
           // pre-pend
           this.$.list.unshift('items', feeds[0]);
         } else {
           // append
-          feeds.forEach(function(feed) {
-            this.$.list.push('items', feed);
-          }, this);
+          this.$.list.push('items', ...feeds);
         }
 
-        this.$.scrollTheshold.clearLower();
-        this.$.scrollTheshold.clearUpper();
+        if(feeds.length > 0) {
+          this.$.scrollTheshold.clearLower();
+          this.$.scrollTheshold.clearUpper();
+        }
       }
 
       _openFeed(event) {

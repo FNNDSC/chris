@@ -114,6 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       port="[[port]]"
       namespace="[[namespace]]"
       active-feed="{{activeFeed}}"
+      all-feeds-loaded="{{allFeedsLoaded}}"
       feeds="{{feeds}}"
       data="{{data}}"
       pluginsds="{{pluginsds}}"
@@ -167,6 +168,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <chris-home
             name="home"
             scroll-target="[[scrollTarget]]"
+            all-feeds-loaded="{{allFeedsLoaded}}"
             feeds="[[feeds]]"
             on-fetch-next-feeds="_fetchFeeds"
             on-open-feed="_openFeed"></chris-home>

@@ -108,8 +108,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .index {
         width: 30px;
       }
-      .avatar {
-        
+
+      [hidden] {
+        display: none;
       }
     </style>
 
@@ -129,7 +130,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </template>
     </iron-list>
 
-    <div class="loadingIndicator">
+    <div hidden$="[[allFeedsLoaded]]" class="loadingIndicator">
       <paper-spinner active="{{loadingPeople}}"></paper-spinner> Fetching data
     </div>
 
@@ -151,6 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: HTMLElement,
             observer: '_scrollTargetChanged',
           },
+          allFeedsLoaded: Boolean,
           feeds: {
             type: Array,
             observer: '_feedsChanged',
@@ -173,6 +175,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     
       _fetchNextFeeds() {
+        if (this.allFeedsLoaded) return;
+
         // fetch next 20 feeds
         this.dispatchEvent(
           new CustomEvent('fetch-next-feeds', {detail: {feeds: 20}}));
@@ -181,18 +185,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _feedsChanged(feeds) {
         // need to be smarter here: why?
         // check if pre-pend or append
-        // user obser feeds.* to check if a specific property changed?
+        // observe feeds.* to check if a specific property changed?
         if (feeds.length === 0 || this.$.list.items.length === 0) {
           // set / reset
           this.$.list.set('items', [...feeds]);
+        } else if (feeds.length === this.$.list.items.length) {
+          // a property of a feed changed (no element was added/removed)
+          return;
         } else if (
           this.$.list.items.length > 0 &&
           feeds[0].data.id !== this.$.list.items[0].data.id) {
           // pre-pend
           this.$.list.unshift('items', feeds[0]);
         } else {
+          const numberOfItems = this.$.list.items.length;
+          const feedsToBeAdded = feeds.slice(numberOfItems);
+
           // append
-          this.$.list.push('items', ...feeds);
+          this.$.list.push('items', ...feedsToBeAdded);
         }
 
         if(feeds.length > 0) {

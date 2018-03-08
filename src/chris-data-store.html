@@ -37,6 +37,11 @@
             value: () => [],
             notify: true,
           },
+          allFeedsLoaded: {
+            type: Boolean,
+            value: false,
+            notify: true,
+          },
           feeds: {
             type: Array,
             value: () => [],
@@ -122,12 +127,12 @@
           token: sessionStorage.getItem('auth-token'),
         };
         data.params = {};
-        data.params.offset = from;
+        data.params.offset = from + this.feeds.length;
         data.params.limit = pageSize;
         data.params.page_size = pageSize;
         const feedQuery = this.$.API.request('GET', 'feeds', data);
         feedQuery
-          .then(this._handleFeedsResponse.bind(this))
+          .then(this._handleFeedsResponse.bind(this, pageSize))
           .catch(this._handleFeedsError.bind(this));
         // const request = this.$.ajax.generateRequest();
         // request.completes
@@ -139,13 +144,16 @@
         console.log('did respond');
       }
 
-      _handleFeedsResponse(response) {
+      _handleFeedsResponse(pageSize, response) {
         const results = response.data;
-        console.log(results);
         const feeds = [...this.feeds];
         for (let i=0; i<results.length; i++) {
           const result = results[i];
           feeds.push(result);
+        }
+
+        if(pageSize > results.length) {
+          this.set('allFeedsLoaded', true);
         }
 
         this.set('feeds', feeds);
@@ -271,20 +279,18 @@
         data.params.limit = 9999;
         data.params.page_size = 9999;
         // what if no feeds yet?
-        console.log(this.feeds);
-        const request = this.$.API.request('GET', `/plugins/instances/${feedId}/`, data);
-            request
-              .then((response) => {
-                console.log(response);
-                this.set('activeFeed', response.data
-        );
-              })
-              .catch((response) => {
-                console.log(response);
-              });
+        const request =
+          this.$.API.request('GET', `/plugins/instances/${feedId}/`, data);
+        request
+          .then((response) => {
+            console.log(response);
+            this.set('activeFeed', response.data);
+          })
+          .catch((response) => {
+            console.log(response);
+          });
 
         for (let i=0; i<this.feeds.length; i++) {
-          console.log(this.feeds);
           const feed = this.feeds[i];
           if (feed.data.id === feedId) {
             break;

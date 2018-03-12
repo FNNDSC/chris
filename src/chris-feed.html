@@ -80,6 +80,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <dom-repeat items="[[item.parameters]]">
                   <template>
                     <chris-parameter
+                      parameter="{{item}}"
                       name="{{item.data.name}}"
                       type="{{item.data.type}}"
                       help="{{item.data.help}}"
@@ -93,8 +94,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </dom-repeat>
         </div>
         <div class="card-actions">
-          <paper-button>Reset parameters</paper-button>
-          <paper-button>Run</paper-button>
+          <paper-button on-click="_resetParameters">Reset parameters</paper-button>
+          <paper-button on-click="_run">Run</paper-button>
         </div>
       </paper-card>
     </div>
@@ -132,10 +133,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             value: -1,
             observer: '_selectedPluginIndexChanged',
           },
+          parameters: {
+            type: Object,
+            value: () => {},
+          },
         };
       }
 
-      _selectedPluginIndexChanged() {
+      _selectedPluginIndexChanged(selectedPluginIndex) {
+        if (selectedPluginIndex >= 0) {
+          this.parameters = this.plugins[selectedPluginIndex].parameters;
+          this._resetParameters();
+        }
         this.$.test.render();
       }
 
@@ -149,8 +158,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return index === this.selectedPluginIndex;
       }
 
-      _valueChanged(value) {
-        // console.log(value);
+      _valueChanged(event) {
+        // make sure we have direct reference to the value from the parameters
+        const parameter = event.currentTarget.parameter;
+        parameter.target = event.currentTarget;
+      }
+
+      _resetParameters() {
+        for (var i=0; i < this.parameters.length; i++) {
+          if (this.parameters[i].target) {
+            this.parameters[i].target.value =
+            this.parameters[i].data.default;
+          }
+        }
+      }
+
+      _run() {
+        for (var i=0; i < this.parameters.length; i++) {
+          let value = '';
+          if (this.parameters[i].target) {
+            value = this.parameters[i].target.value;
+          } else {
+            value = this.parameters[i].data.default;
+          }
+        }
+        this.addItem = false;
+        this._resetParameters();
+
+        // run on first element of feed list (most recent)
       }
     }
 

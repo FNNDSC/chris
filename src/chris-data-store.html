@@ -87,12 +87,14 @@
         start
           .then((response) => {
             // add feed to the list of feeds
+            // if it is a FS feed, else check if need to
+            // add to current Feed
             return this.fetchFeedFromLink(response.data[0].links.feed)
             .then(() => response);
           })
           .then(this.__wait.bind(this, 1000))
           .then(this.__waitEndPlugin.bind(this, this.$.API, payload.data))
-          .then((response) => console.log(response))
+          .then((response) => console.log(this.activeFeed)) // add / update current feed
           .catch((response) => console.log(response));
       }
 

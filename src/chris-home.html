@@ -93,6 +93,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply --layout-horizontal;
       }
 
+      .last {
+        font-size: 14px;
+        justify-content: center;
+        /* margin: 10px 0; */
+        @apply --layout-flex;
+        @apply --layout-horizontal;
+      }
+
       .status {
         font-size: 14px;
         justify-content: center;
@@ -121,7 +129,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="pad">
               <div class="avatar">[[feed.data.id]]</div>
               <div class="primary">[[feed.data.name]]</div>
-              <div class="status">
+              <div class="last">
                 Last update: [[feed.data.modification_date]]
               </div>
             </div>
@@ -183,6 +191,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _feedsChanged(feeds) {
+        console.log(feeds);
         // need to be smarter here: why?
         // check if pre-pend or append
         // observe feeds.* to check if a specific property changed?

@@ -174,6 +174,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _run() {
+        const selectedPlugin = this.plugins[this.selectedPluginIndex];
+        const previousPluginInstance = this.feed[this.feed.length - 1];
+        const previousPluginInstanceId = previousPluginInstance.data.id;
+        console.log(previousPluginInstance);
+        // start plugin sequence
+        const data = {};
+        data.auth = {
+          type: 'token',
+          token: sessionStorage.getItem('auth-token'),
+        };
+
+        // add templates
+        data.body = {};
+        data.body.template = {};
+        data.body.template.data = [];
+        data.body.data = {};
+
+        // set previous id
+        data.body.template.data.push({
+          name: 'previous_id',
+          value: '',
+        });
+        data.body.data['previous_id'] = previousPluginInstanceId;
+
+        // loop throught parameters
         for (var i=0; i < this.parameters.length; i++) {
           let value = '';
           if (this.parameters[i].target) {
@@ -181,7 +206,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           } else {
             value = this.parameters[i].data.default;
           }
+
+          const name = this.parameters[i].data.name;
+          data.body.template.data.push({
+            name,
+            value,
+          });
+          data.body.data[name] = value;
+          // console.log(this.parameters[i].data.name);
+          // console.log(value);
         }
+
+
+        //   {name: 'dir', value: ''},
+        // ];
+
+        // data.body.data = {};
+        // data.body.data['dir'] = './';
+
+        // const simpleFSApp =
+        //   this.plugins.filter(this._findPlugin.bind(this, 'simplefsapp'))[0];
+        const instance = selectedPlugin.links.instances;
+        console.log(data);
+
+        this.dispatchEvent(
+          new CustomEvent('run-plugin', {
+            detail: {
+              instance,
+              data,
+              type: 'ds',
+            },
+          }));
+
         this.addItem = false;
         this._resetParameters();
 

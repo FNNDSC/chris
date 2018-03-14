@@ -10,9 +10,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
-<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
+
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="shared-styles.html">
 
@@ -23,12 +24,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: flex;
         flex-direction: column;
         height: 100vh;
-        /* padding: 10px;
-        height: 100vh;
-        display: flex;
-        flex-direction: column; */
       }
-
 
       .loadingIndicator {
         text-align: center;
@@ -42,8 +38,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       iron-list {
-        /* flex: 1 1 auto; */
-        padding-top: 64px;
         padding-bottom: 16px;
         --iron-list-items-container: {
           max-width: 800px;
@@ -130,7 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <div class="avatar">[[feed.data.id]]</div>
               <div class="primary">[[feed.data.name]]</div>
               <div class="last">
-                Last update: [[feed.data.modification_date]]
+                  [[feed.data.modification_date]]
               </div>
             </div>
           </div>
@@ -139,7 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </iron-list>
 
     <div hidden$="[[allFeedsLoaded]]" class="loadingIndicator">
-      <paper-spinner active="{{loadingPeople}}"></paper-spinner> Fetching data
+      <paper-spinner active></paper-spinner>
     </div>
 
 

@@ -21,6 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 
 
 <link rel="import" href="shared-styles.html">
@@ -37,8 +38,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         align-items: center;
       }
 
+      .loadingIndicator {
+        text-align: center;
+        height: 40px;
+      }
+
       paper-card {
         width: 100%;
+        margin: 10px;
       }
 
       @media (min-width: 860px) {
@@ -52,10 +59,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
 
-    Welcome to the feed: [[feed.0.data.id]].
     It contains [[feed.length]] plugins.
 
-    <button on-click="_addItem">Add item</button>
+
+    <div hidden$="[[isIntanciatingPlugin]]">
+      <button on-click="_addItem">Add item</button>
+    </div>
+
+    <div hidden$="[[!isIntanciatingPlugin]]" class="loadingIndicator">
+        <paper-spinner active></paper-spinner> Starting plugin....
+    </div>
 
     <div hidden$="[[!addItem]]">
       <paper-card>
@@ -100,7 +113,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-card>
     </div>
 
-    Plugin instances:
     <dom-repeat items="[[feed]]">
       <template>
         <paper-card heading="[[item.data.plugin_name]]" alt="[[item.data.plugin_name]]">
@@ -122,7 +134,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       static get properties() {
         return {
-          feed: Array,
+          feed: {
+            type: Array,
+            observer: '_feedChanged',
+          },
           plugins: Array,
           addItem: {
             type: Boolean,
@@ -137,7 +152,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Object,
             value: () => {},
           },
+          isIntanciatingPlugin: {
+            type: Boolean,
+            value: false,
+          },
         };
+      }
+
+      _feedChanged(current, previous) {
+        if (current === undefined || previous === undefined) return;
+
+        if (current.length === 0 || current.length > previous.length) {
+          this.isIntanciatingPlugin = false;
+        }
       }
 
       _selectedPluginIndexChanged(selectedPluginIndex) {
@@ -177,7 +204,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         const selectedPlugin = this.plugins[this.selectedPluginIndex];
         const previousPluginInstance = this.feed[this.feed.length - 1];
         const previousPluginInstanceId = previousPluginInstance.data.id;
-        console.log(previousPluginInstance);
         // start plugin sequence
         const data = {};
         data.auth = {
@@ -213,21 +239,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             value,
           });
           data.body.data[name] = value;
-          // console.log(this.parameters[i].data.name);
-          // console.log(value);
         }
 
-
-        //   {name: 'dir', value: ''},
-        // ];
-
-        // data.body.data = {};
-        // data.body.data['dir'] = './';
-
-        // const simpleFSApp =
-        //   this.plugins.filter(this._findPlugin.bind(this, 'simplefsapp'))[0];
         const instance = selectedPlugin.links.instances;
-        console.log(data);
+        this.isIntanciatingPlugin = true;
 
         this.dispatchEvent(
           new CustomEvent('run-plugin', {
@@ -240,8 +255,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.addItem = false;
         this._resetParameters();
-
-        // run on first element of feed list (most recent)
       }
     }
 

@@ -10,6 +10,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
 <link rel="import" href="../bower_components/vaadin-upload/vaadin-upload.html">
 
 <link rel="import" href="shared-styles.html">
@@ -28,6 +30,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="card">
       <div class="circle">3</div>
       <h1>Upload data</h1>
+      <paper-input
+        label="Group"
+        value="{{prefix}}"
+        placeholder="Group data to be uploaded for easy access (i.e. Brain T1)"></paper-input>
      <vaadin-upload
        id="requestDemo"
        target="[[ip]]:[[port]]/[[namespace]]/uploadedfiles/"
@@ -46,6 +52,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           ip: String,
           port: String,
           namespace: String,
+          prefix: String,
         };
       }
 
@@ -64,7 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           const file = event.detail.file;
           formData.append('fname', file);
           formData.append(
-            'upload_path', String(Date.now()) + '/' + event.detail.file.name);
+            'upload_path', String(Date.now()) + '/' + this.prefix + '/' + event.detail.file.name);
           event.detail.xhr.send(formData);
         });
 
@@ -72,6 +79,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.upload.addEventListener('upload-start', function(event) {
           console.log('upload xhr after send: ', event.detail.xhr);
         });
+
+        // when ready update data object
       }
 
 

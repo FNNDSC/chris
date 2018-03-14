@@ -18,7 +18,6 @@
     "cube-auth": "FNNDSC/cube-auth#master",
     "iron-list": "^2.0.12",
     "paper-spinner": "^2.1.0",
-    "iron-ajax": "^2.1.2",
     "iron-scroll-threshold": "^1.0.2",
     "chips-api": "fnndsc/chips-api",
     "vaadin-upload": "^3.0.2",
@@ -29,7 +28,11 @@
     "neon-animation": "^2.2.1",
     "web-animations-js": "^2.3.1",
     "paper-tooltip": "^2.1.1",
-    "paper-checkbox": "^2.0.2"
+    "paper-checkbox": "^2.0.2",
+    "paper-input": "^2.2.0",
+    "vaadin-grid": "^4.1.7",
+    "paper-fab": "^2.1.0",
+    "iron-icons": "^2.1.1"
   },
   "resolutions": {
     "polymer": "^2.0.0",

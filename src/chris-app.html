@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+
 <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
@@ -22,8 +23,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="chris-icons.html">
-
 <link rel="import" href="chris-data-store.html">
+
+<link rel="import" href="global-styles.html">
 
 <!-- pages from the app -->
 <link rel="lazy-import" href="chris-404.html">
@@ -38,57 +40,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="chris-app">
   <template>
-    <style>
-      :host {
-        --app-primary-color: #03a9f4;
-        --app-secondary-color: black;
+      <style>
+        :host {
+          display: block;
+        }
 
-        display: block;
-      }
+        app-drawer-layout:not([narrow]) [drawer-toggle] {
+          display: none;
+        }
 
-      app-drawer-layout:not([narrow]) [drawer-toggle] {
-        display: none;
-      }
+        app-header {
+          color: #fff;
+          background-color: var(--app-primary-color);
+        }
 
-      app-header {
-        color: #fff;
-        background-color: var(--app-primary-color);
-      }
+        app-header paper-icon-button {
+          --paper-icon-button-ink-color: white;
+        }
 
-      app-header paper-icon-button {
-        --paper-icon-button-ink-color: white;
-      }
+        .drawer-list {
+          margin: 0 20px;
+        }
 
-      .drawer-list {
-        margin: 0 20px;
-      }
+        .drawer-list a {
+          display: block;
+          padding: 0 16px;
+          text-decoration: none;
+          color: var(--app-secondary-color);
+          line-height: 40px;
+        }
 
-      .drawer-list a {
-        display: block;
-        padding: 0 16px;
-        text-decoration: none;
-        color: var(--app-secondary-color);
-        line-height: 40px;
-      }
+        .drawer-list a.iron-selected {
+          color: black;
+          font-weight: bold;
+        }
 
-      .drawer-list a.iron-selected {
-        color: black;
-        font-weight: bold;
-      }
+        chris-login {
+          position: fixed;
+          top: 0;
+          bottom: 0;
+          right: 0;
+          left: 0;
+          z-index:99;
+        }
 
-      chris-login {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        z-index:99;
-      }
-
-      [hidden] {
-        display: none;
-      }
-    </style>
+        [hidden] {
+          display: none;
+        }
+      </style>
+    </custom-style>
 
     <app-location
       route="{{route}}"

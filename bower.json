@@ -20,7 +20,7 @@
     "paper-spinner": "^2.1.0",
     "iron-scroll-threshold": "^1.0.2",
     "chips-api": "fnndsc/chips-api",
-    "vaadin-upload": "^3.0.2",
+    "vaadin-upload": "vaadin/vaadin-upload#^v4.0.0-beta1",
     "paper-card": "PolymerElements/paper-card#^2.1.0",
     "paper-dropdown-menu": "^2.0.3",
     "paper-listbox": "^2.0.0",
@@ -37,7 +37,9 @@
   "resolutions": {
     "polymer": "^2.0.0",
     "iron-ajax": "^2.1.2",
-    "webcomponentsjs": "^v1.0.19"
+    "webcomponentsjs": "^v1.0.19",
+    "vaadin-button": "^2.0.0",
+    "vaadin-control-state-mixin": "^2.0.0"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0"

@@ -16,16 +16,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="shared-styles.html">
 
+<!-- <dom-module id="my-text-field-theme" theme-for="vaadin-upload">
+    <template>
+      <style>
+        :host {
+          --lumo-primary-color: red;
+          --lumo-primary-color-50pct: green;
+          --lumo-primary-color-10pct: blue;
+          --lumo-primary-text-color: var(--lumo-primary-color);
+          --lumo-primary-contrast-color: #FFF;
+        }
+      </style>
+    </template>
+  </dom-module> -->
+
+  <!-- <dom-module id="my-upload-file" theme-for="vaadin-upload-file">
+      <template>
+        <style>
+          /* [part~="row"] {
+            background-color: rgba(183, 225, 205, 0.24);
+            padding: 5px;
+            border-radius: 4px 4px 0px 0px;
+          } */
+        </style>
+      </template>
+    </dom-module> -->
+
 <dom-module id="chris-data-upload">
   <template>
-    <style include="shared-styles">
-      :host {
-        display: block;
-
-        padding: 10px;
-      }
-
-    </style>
+    <custom-style>
+      <style include="shared-styles">
+        :host {
+          display: block;
+          padding: 10px;
+        }
+      </style>
+    </custom-style>
 
     <div class="card">
       <div class="circle">3</div>

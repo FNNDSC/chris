@@ -83,10 +83,6 @@
               if (feedId !== this.activeFeedId) {
                 return Promise.reject('discard response');
               }
-              // const previousId = response.data[0].data.previous_id;
-              // const index = this.activeFeed.find((element) => {
-              //   return element.data.id === previousId;
-              // });
 
               const activeFeed = this.activeFeed;
               this.set('activeFeed', [response.data[0], ...activeFeed]);
@@ -259,10 +255,11 @@
             return this.$.API.request('GET', `/plugins/instances/search/`, payload);
           })
           .then((response) => {
-            // sort data
-            this.set('activeFeed', response.data.sort((a, b) => {
+            const activeFeed = response.data.sort((a, b) => {
               return b.data.id - a.data.id;
-            }));
+            });
+            // sort data
+            this.set('activeFeed', activeFeed);
           })
           .catch((response) => {
             console.log(response);

@@ -29,8 +29,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       .loadingIndicator {
+        color: #ffffff;
         text-align: center;
         height: 40px;
+        margin: 16px;
+      }
+
+      chris-feed-starter {
+        margin-top: 16px;
       }
       
       paper-spinner {
@@ -53,26 +59,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply --layout-horizontal;
         margin: 16px 16px 0 16px;
         padding: 20px;
-        border-radius: 8px;
-        background-color: white;
+        background-color: #d9d9d9;
         border: 1px solid white;
+        color: #424242;
       }
 
       .personItem:hover {
-        background-color: #b3e5fc;
         cursor: pointer;
+        background-color: white;
+        color: black;
+      }
+
+      .personItem:hover .avatar {
+        color: var(--app-primary-color);
       }
 
       .personItem.new {
-        background-color: gold;
+        background-color: var(--app-accent-color);
       }
 
       .avatar {
         height: 40px;
         width: 40px;
         border-radius: 20px;
+        font-size: 32px;
         box-sizing: border-box;
-        background-color: #DDD;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -142,7 +153,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="pad">
               <div class="avatar">[[feed.data.id]]</div>
               <div class="primary">[[feed.data.name]]</div>
-              <div class="last">
+              <div class$="[[feed.class]]">
                   [[feed.data.modification_date]]
               </div>
             </div>
@@ -223,7 +234,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.list.items.length > 0 &&
           feeds[0].data.id !== this.$.list.items[0].data.id) {
           // pre-pend
-          // feeds[0].data.class = 'new';
+          feeds[0].class = 'new';
           this.$.list.unshift('items', feeds[0]);
           this.waitingForNewPlugin = false;
         } else {
@@ -241,12 +252,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _openFeed(event) {
-        // console.log(event);
-        // console.log(this.feeds);
-        // event.model.__data.feed.data.class = '';
-        // this.set(['feeds', event.model.__data.index, 'feed', 'data', 'class'], '');
-        // this.notifyPath(['feeds', event.model.__data.index, 'feed', 'data', 'class']);
-        // this.$.list._render();
         // keep a list of new items
         const feed = event.model.__data.feed;
         this.dispatchEvent(
@@ -258,7 +263,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _computedClass(feed) {
-        return 'personItem ' + feed.data.class;
+        return 'personItem ' + feed.class;
       }
     }
 

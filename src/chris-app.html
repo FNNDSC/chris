@@ -71,6 +71,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           font-weight: bold;
         }
 
+        .logout {
+          font-size: 14px;
+        }
+
         chris-login {
           position: fixed;
           top: 0;
@@ -148,7 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>Chris</div>
-            <paper-button on-click="_logout">logout</paper-button>
+            <paper-button class="logout" on-click="_logout">logout</paper-button>
           </app-toolbar>
         </app-header>
 

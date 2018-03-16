@@ -19,7 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
-
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 
 <link rel="import" href="./chris-data-selector.html">
 <link rel="import" href="./chris-data-uploader.html">
@@ -29,15 +29,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <style>
       paper-button {
+        color: black;
         width: 100%;
+      }
+
+      .wrapper {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
 
       .container {
         width: 100%;
       }
 
-      .container {
-        width: 100%;
+      .card {
+        margin: 16px;
+        background-color: #ffffff;
+        padding: 8px;
       }
 
       .footer {
@@ -48,48 +58,58 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         position: absolute;
         bottom: 0;
         right: 0;
+        background:  var(--app-accent-color);
+      }
+
+      iron-pages {
+        height: 422px;
       }
 
       [hidden] {
         display: none;
       }
 
-
       @media (min-width: 860px) {
         .container {
+          min-width: 0px;
           max-width: 800px;
         }
       }
     </style>
 
-    <div class="container">
-      <paper-button on-click="toggle">Start new analysis</paper-button>
-      <iron-collapse id="collapse">
-        <paper-tabs
-          selected="{{page}}"
-          attr-for-selected="name">
-          <paper-tab name="upload">Upload data</paper-tab>
-          <paper-tab name="select">Select data</paper-tab>
-        </paper-tabs>
-        <iron-pages
-          selected="[[page]]"
-          attr-for-selected="name"
-          fallback="select">
-          <chris-data-uploader
-            name="upload"
-            ip="[[ip]]"
-            port="[[port]]"
-            namespace="[[namespace]]"></chris-data-uploader>
-          <chris-data-selector
-            id="dataSelector"
-            name="select"
-            data="[[data]]"
-            data-selected="{{dataSelected}}"
-            selected-data="{{selectedData}}"></chris-data-selector>
-        </iron-pages>
-      </iron-collapse>
-      <div class="footer">
-        <paper-fab hidden$="[[!dataSelected]]" icon="av:play-arrow" on-click="_startPlugin"></paper-fab>
+    <div class="wrapper">
+      <div class="container">
+        <div class="card">
+          <paper-button on-click="toggle">Start new analysis</paper-button>
+          <iron-collapse id="collapse">
+            <paper-tabs
+              selected="{{page}}"
+              attr-for-selected="name">
+              <paper-tab name="upload">Upload data</paper-tab>
+              <paper-tab name="select">Select data</paper-tab>
+            </paper-tabs>
+            <iron-pages
+              selected="[[page]]"
+              attr-for-selected="name"
+              fallback="select">
+              <chris-data-uploader
+                name="upload"
+                ip="[[ip]]"
+                port="[[port]]"
+                namespace="[[namespace]]"></chris-data-uploader>
+              <chris-data-selector
+                id="dataSelector"
+                name="select"
+                data="[[data]]"
+                data-selected="{{dataSelected}}"
+                selected-data="{{selectedData}}"></chris-data-selector>
+            </iron-pages>
+          </iron-collapse>
+          <div class="footer">
+            <paper-fab id="starter" hidden$="[[!dataSelected]]" icon="av:play-arrow" on-click="_startPlugin"></paper-fab>
+            <paper-tooltip for="starter" animation-delay="0.2" position="top">Start analysis</paper-tooltip>
+          </div>
+        </div>
       </div>
     </div>
   </template>
@@ -131,13 +151,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       toggle() {
         this.$.collapse.toggle();
+        this.$.dataSelector.reset();
       }
 
       _startPlugin() {
-        console.log('clicked');
-        console.log(this.selectedData);
         this._runPlugin();
-        this.$.dataSelector.reset();
         this.toggle();
       }
 

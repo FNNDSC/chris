@@ -21,6 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="chris-icons.html">
 <link rel="import" href="chris-data-store.html">
@@ -29,14 +30,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <!-- pages from the app -->
 <link rel="lazy-import" href="chris-404.html">
-<link rel="lazy-import" href="chris-data-browser.html">
-<link rel="lazy-import" href="chris-data-upload.html">
 <link rel="lazy-import" href="chris-feed.html">
 <link rel="lazy-import" href="chris-home.html">
 <link rel="lazy-import" href="chris-login.html">
-
-<!-- File browser plugin -->
-<link rel="lazy-import" href="chris-filebrowser-plugin.html">
 
 <dom-module id="chris-app">
   <template>
@@ -139,10 +135,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-toolbar>Welcome home, [[username]]</app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="home" href="[[rootPath]]home">Home</a>
-          <a name="data-upload" href="[[rootPath]]data-upload">Data Upload</a>
-          <a name="data-browser" href="[[rootPath]]data-browser">Data Browser</a>
-          <a name="file-browser" href="[[rootPath]]filebrowser-plugin">Start file browser plugin</a>
-          <a name="feed" href="[[rootPath]]feed">Active feed</a>
         </iron-selector>
       </app-drawer>
 
@@ -156,7 +148,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>Chris</div>
-            <button on-click="_logout">logout</button>
+            <paper-button on-click="_logout">logout</paper-button>
           </app-toolbar>
         </app-header>
 
@@ -170,29 +162,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             scroll-target="[[scrollTarget]]"
             all-feeds-loaded="{{allFeedsLoaded}}"
             feeds="[[feeds]]"
-            on-fetch-next-feeds="_fetchFeeds"
-            on-open-feed="_openFeed"></chris-home>
-          <chris-data-upload
-            name="data-upload"
-            ip="[[ip]]"
-            port="[[port]]"
-            namespace="[[namespace]]"></chris-data-upload>
-          <chris-data-browser
-            name="data-browser"
-            ip="[[ip]]"
-            port="[[port]]"
-            namespace="[[namespace]]"
-            data="[[data]]"
-            on-fetch-data="_fetchData"></chris-data-browser>
-          <chris-filebrowser-plugin
-            name="filebrowser-plugin"
             ip="[[ip]]"
             port="[[port]]"
             namespace="[[namespace]]"
             data="[[data]]"
             plugins="[[pluginsfs]]"
             on-fetch-data="_fetchData"
-            on-run-plugin="_runPlugin"></chris-filebrowser-plugin>
+            on-fetch-next-feeds="_fetchFeeds"
+            on-open-feed="_openFeed"
+            on-run-plugin="_runPlugin"></chris-home>
           <chris-feed
             name="feed"
             feed="{{activeFeed}}"

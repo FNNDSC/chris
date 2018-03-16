@@ -17,6 +17,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="shared-styles.html">
 
+<link rel="import" href="./components/chris-feed-starter.html">
+
 <dom-module id="chris-home">
   <template>
     <style include="shared-styles">
@@ -42,7 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --iron-list-items-container: {
           max-width: 800px;
           margin: auto;
-          margin-top: 60px;
+          margin-top: 20px;
           margin-bottom: 10px;
         };
       }
@@ -59,6 +61,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .personItem:hover {
         background-color: #b3e5fc;
         cursor: pointer;
+      }
+
+      .personItem.new {
+        background-color: gold;
       }
 
       .avatar {
@@ -116,10 +122,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
 
+    <chris-feed-starter
+      hidden$="[[waitingForNewPlugin]]"
+      ip="[[ip]]"
+      port="[[port]]"
+      namespace="[[namespace]]"
+      data="[[data]]"
+      plugins="[[plugins]]"
+      on-run-plugin="_runPluginSent"></chris-feed-starter>
+
+    <div hidden$="[[!waitingForNewPlugin]]" class="loadingIndicator">
+      <paper-spinner active></paper-spinner> New analysis is being created
+    </div>
+
     <iron-list id="list" items="[]" as="feed" scroll-target="[[scrollTarget]]">
       <template>
         <div class="feed" on-click="_openFeed">
-          <div class="personItem" tabindex$="[[tabIndex]]">
+          <div class$="[[_computedClass(feed)]]" tabindex$="[[tabIndex]]">
             <div class="pad">
               <div class="avatar">[[feed.data.id]]</div>
               <div class="primary">[[feed.data.name]]</div>
@@ -150,6 +169,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       static get properties() {
         return {
+          ip: String,
+          port: String,
+          namespace: String,
+          data: Array,
+          plugins: Array,
           scrollTarget: {
             type: HTMLElement,
             observer: '_scrollTargetChanged',
@@ -159,12 +183,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Array,
             observer: '_feedsChanged',
           },
+          waitingForNewPlugin: Boolean,
         };
       }
 
       static get observers() {
         return [
-          // Observer method name, followed by a list of dependencies, in parenthesis
           // '_feedsChanged(feeds.*)',
         ];
       }
@@ -185,13 +209,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _feedsChanged(feeds) {
-        console.log(feeds);
         // need to be smarter here: why?
         // check if pre-pend or append
         // observe feeds.* to check if a specific property changed?
         if (feeds.length === 0 || this.$.list.items.length === 0) {
           // set / reset
           this.$.list.set('items', [...feeds]);
+          this.waitingForNewPlugin = false;
         } else if (feeds.length === this.$.list.items.length) {
           // a property of a feed changed (no element was added/removed)
           return;
@@ -199,7 +223,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.list.items.length > 0 &&
           feeds[0].data.id !== this.$.list.items[0].data.id) {
           // pre-pend
+          // feeds[0].data.class = 'new';
           this.$.list.unshift('items', feeds[0]);
+          this.waitingForNewPlugin = false;
         } else {
           const numberOfItems = this.$.list.items.length;
           const feedsToBeAdded = feeds.slice(numberOfItems);
@@ -215,9 +241,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _openFeed(event) {
+        // console.log(event);
+        // console.log(this.feeds);
+        // event.model.__data.feed.data.class = '';
+        // this.set(['feeds', event.model.__data.index, 'feed', 'data', 'class'], '');
+        // this.notifyPath(['feeds', event.model.__data.index, 'feed', 'data', 'class']);
+        // this.$.list._render();
+        // keep a list of new items
         const feed = event.model.__data.feed;
         this.dispatchEvent(
           new CustomEvent('open-feed', {detail: {feed}}));
+      }
+
+      _runPluginSent() {
+        this.waitingForNewPlugin = true;
+      }
+
+      _computedClass(feed) {
+        return 'personItem ' + feed.data.class;
       }
     }
 

@@ -9,6 +9,7 @@ if [ -z "$2" ]; then
 fi
 
 docker ps&& \
+# we use --name se we can force removing of container started with --restart=always
 # https://stackoverflow.com/a/38225298/2568650
 docker rm chris -f || true && \
 docker run --restart=always -d -p $1:8081 --name chris $2

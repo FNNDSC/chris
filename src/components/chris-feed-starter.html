@@ -1,0 +1,185 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
+
+
+<link rel="import" href="./chris-data-selector.html">
+<link rel="import" href="./chris-data-uploader.html">
+
+<link rel="import" href="../shared-styles.html">
+<dom-module id="chris-feed-starter">
+  <template>
+    <style>
+      paper-button {
+        width: 100%;
+      }
+
+      .container {
+        width: 100%;
+      }
+
+      .container {
+        width: 100%;
+      }
+
+      .footer {
+        position: relative;
+      }
+
+      paper-fab {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+      }
+
+      [hidden] {
+        display: none;
+      }
+
+
+      @media (min-width: 860px) {
+        .container {
+          max-width: 800px;
+        }
+      }
+    </style>
+
+    <div class="container">
+      <paper-button on-click="toggle">Start new analysis</paper-button>
+      <iron-collapse id="collapse">
+        <paper-tabs
+          selected="{{page}}"
+          attr-for-selected="name">
+          <paper-tab name="upload">Upload data</paper-tab>
+          <paper-tab name="select">Select data</paper-tab>
+        </paper-tabs>
+        <iron-pages
+          selected="[[page]]"
+          attr-for-selected="name"
+          fallback="select">
+          <chris-data-uploader
+            name="upload"
+            ip="[[ip]]"
+            port="[[port]]"
+            namespace="[[namespace]]"></chris-data-uploader>
+          <chris-data-selector
+            id="dataSelector"
+            name="select"
+            data="[[data]]"
+            data-selected="{{dataSelected}}"
+            selected-data="{{selectedData}}"></chris-data-selector>
+        </iron-pages>
+      </iron-collapse>
+      <div class="footer">
+        <paper-fab hidden$="[[!dataSelected]]" icon="av:play-arrow" on-click="_startPlugin"></paper-fab>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    class ChrisFeedStarter extends Polymer.Element {
+      static get is() { return 'chris-feed-starter'; }
+
+      static get properties() {
+        return {
+          ip: String,
+          port: String,
+          namespace: String,
+          data: Array,
+          dataSelected: Boolean,
+          selectedData: Array,
+          plugins: Array,
+          page: {
+            type: String,
+            value: 'select',
+            observer: '_pageChanged',
+          },
+        };
+      }
+
+      _pageChanged(page) {
+        if (page === 'select') {
+          this._fetchData();
+        } else {
+          this.$.dataSelector.reset();
+        }
+      }
+
+      _fetchData() {
+        this.dispatchEvent(
+          new CustomEvent(
+            'fetch-data', {bubbles: true, composed: true, detail: {}}));
+      }
+
+      toggle() {
+        this.$.collapse.toggle();
+      }
+
+      _startPlugin() {
+        console.log('clicked');
+        console.log(this.selectedData);
+        this._runPlugin();
+        this.$.dataSelector.reset();
+        this.toggle();
+      }
+
+      _findPlugin(targetPluginName, currentPlugin) {
+        return currentPlugin.data.name === targetPluginName;
+      }
+
+      _runPlugin() {
+        // start plugin sequence
+        const data = {};
+        data.auth = {
+          type: 'token',
+          token: sessionStorage.getItem('auth-token'),
+        };
+
+        // add templates
+        data.body = {};
+        data.body.template = {};
+        data.body.template.data = [
+          {name: 'dir', value: ''},
+        ];
+
+        data.body.data = {};
+        data.body.data['dir'] = './';
+
+        const simpleFSApp =
+          this.plugins.filter(this._findPlugin.bind(this, 'simplefsapp'))[0];
+        const instance = simpleFSApp.links.instances;
+
+        this.dispatchEvent(
+          new CustomEvent('run-plugin', {
+            bubbles: true,
+            composed: true,
+            detail: {
+              instance,
+              data,
+              type: 'fs',
+            },
+          }));
+      }
+    }
+
+    window.customElements.define(ChrisFeedStarter.is, ChrisFeedStarter);
+  </script>
+</dom-module>

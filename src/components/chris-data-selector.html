@@ -1,0 +1,99 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-filter.html">
+
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="chris-data-selector">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+
+      vaadin-grid-filter, paper-input {
+        width: 100%;
+      }
+    </style>
+
+    <vaadin-grid
+      id="grid"
+      aria-label="Basic Binding Example"
+      multi-sort="true"
+      items="[[data]]"
+      selected-items="{{selectedData}}">
+
+      <vaadin-grid-selection-column id="selectionColumn" auto-select>
+      </vaadin-grid-selection-column>
+
+      <vaadin-grid-column>
+        <template class="header">
+          <vaadin-grid-sorter path="data.upload_path">
+            <vaadin-grid-filter aria-label="Path" path="data.upload_path" value="[[_filterPath]]">
+              <paper-input slot="filter" label="Filter data" value="{{_filterPath::input}}"></paper-input>
+            </vaadin-grid-filter>
+          </vaadin-grid-sorter>
+        </template>
+        <template>[[item.data.upload_path]]</template>
+      </vaadin-grid-column>
+    </vaadin-grid>
+  </template>
+
+  <script>
+    class ChrisDataSelector extends Polymer.Element {
+      static get is() { return 'chris-data-selector'; }
+
+      static get properties() {
+        return {
+          data: Array,
+          // may need to watch data
+          // https://github.com/FNNDSC/gex/blob/master/src/gex-library.html#L1021-L1029
+          selectedData: {
+            type: Array,
+            value: [],
+            notify: true,
+          },
+          dataSelected: {
+            type: Boolean,
+            notify: true,
+          },
+          _filterPath: String,
+        };
+      }
+
+      static get observers() {
+        return [
+          '_selectedDataChanged(selectedData.splices)',
+        ];
+      }
+
+      _selectedDataChanged() {
+        this.dataSelected = (this.selectedData.length > 0);
+      }
+
+      reset() {
+        this.$.grid.selectedItems = [];
+        this._filterPath = '';
+      }
+    }
+
+    window.customElements.define(ChrisDataSelector.is, ChrisDataSelector);
+  </script>
+</dom-module>

@@ -27,6 +27,11 @@
             notify: true,
           },
           activeFeedId: Number,
+          activeFeedData: {
+            type: Array,
+            value: () => [],
+            notify: true,
+          },
           allFeedsLoaded: {
             type: Boolean,
             value: false,
@@ -67,6 +72,8 @@
 
       cleanDatastore() {
         this.set('activeFeed', []);
+        this.set('activeFeedData', []);
+        this.set('activeFeedId', -1);
         this.set('data', []);
         this.set('feeds', []);
         this.set('pluginsfs', []);
@@ -86,18 +93,15 @@
 
               const activeFeed = this.activeFeed;
               this.set('activeFeed', [response.data[0], ...activeFeed]);
-              return response;
+              const payload2 = this._initPayload();
+              return this._getFilesWhenFinished.bind(this, payload2, response, feedId)();
             }
 
             // add feed to the list of feeds
             // if it is a FS feed, else check if need to
             // add to current Feed
-            return this.fetchFeedFromLink(response.data[0].links.feed)
-            .then(() => response);
+            return this.fetchFeedFromLink(response.data[0].links.feed);
           })
-          .then(this.__wait.bind(this, 1000))
-          .then(this.__waitEndPlugin.bind(this, this.$.API, payload.data))
-          .then((response) => console.log(this.activeFeed)) // add / update current feed
           .catch((response) => console.error(response));
       }
 
@@ -245,6 +249,10 @@
           this.$.API.request('GET', `/${feedId}/`, payload);
         request
           .then((response) => {
+            if (feedId !== this.activeFeedId) {
+              return Promise.reject('discard response');
+            }
+
             const rootPluginInstanceLink = response.data[0].links.plugin_inst;
             const rootPluginId =
               rootPluginInstanceLink.slice(0, -1).split('/').pop();
@@ -255,11 +263,24 @@
             return this.$.API.request('GET', `/plugins/instances/search/`, payload);
           })
           .then((response) => {
+            if (feedId !== this.activeFeedId) {
+              return Promise.reject('discard response');
+            }
+
             const activeFeed = response.data.sort((a, b) => {
               return b.data.id - a.data.id;
             });
             // sort data
             this.set('activeFeed', activeFeed);
+
+            // get files per plugin
+            // __waitEndPlugin ensures all files are registered
+            for (let i = 0; i<response.data.length; i++) {
+              let data = {
+                'data': [response.data[i]],
+              };
+              this._getFilesWhenFinished.bind(this, payload, data, feedId)();
+            }
           })
           .catch((response) => {
             console.log(response);
@@ -271,6 +292,43 @@
             break;
           }
         }
+      }
+
+      _getFilesWhenFinished(payload, data, feedId) {
+        console.log(payload);
+        console.log(data);
+        console.log(feedId);
+        return this.__waitEndPlugin(this.$.API, payload, data)
+          .then((response) => {
+            console.log(feedId);
+            console.log(this.activeFeedId);
+            if (feedId !== this.activeFeedId) {
+              return Promise.reject('discard response');
+            }
+            // update plugin status
+            console.log(response);
+            for (let i = 0; i < this.activeFeed.length; i++) {
+              console.log( this.activeFeed[i]);
+              if (response.data.id === this.activeFeed[i].data.id) {
+                if (response.data.status !== this.activeFeed[i].data.status) {
+                  this.set([`activeFeed.${i}.data.status`], response.data.status);
+                  this.notifyPath(`activeFeed.${i}.data.status`);
+                  console.log(this.activeFeed[i].data.status);
+                }
+              }
+            }
+            return response;
+          })
+          // get files feed
+          .then(this.__getFilesPlugin.bind(this, this.$.API, payload))
+          .then((response) => {
+            if (feedId !== this.activeFeedId) {
+              return Promise.reject('discard response');
+            }
+            // update feedsData
+            console.log(response);
+            return response;
+          });
       }
     }
 

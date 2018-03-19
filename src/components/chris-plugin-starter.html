@@ -1,0 +1,298 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+ <!-- Ensure Web Animations polyfill is loaded since neon-animation 2.0 doesn't import it -->
+ <!-- Needed for the dropdown menu -->
+ <link rel="import" href="../../bower_components/neon-animation/web-animations.html">
+
+ <link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+ <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+ <link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="./chris-parameter.html">
+
+
+<link rel="import" href="../shared-styles.html">
+<dom-module id="chris-plugin-starter">
+  <template>
+    <style>
+      .wrapper {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .card {
+        background-color: #fff;
+      }
+
+      .container {
+        width: 100%;
+        padding: 10px;
+      }
+
+      .addStep {
+        display: flex;
+        color: #fff;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid #fff;
+        margin-left: 16px;
+        margin-right: 16px;
+        padding: 8px;
+      }
+
+      .addStep > .label {
+        margin-right: 12px;
+      }
+      
+      .card {
+        margin-right: 16px;
+        margin-left: 16px;
+        background-color: #fff;
+      }
+
+      .card-actions {
+        position: relative;
+        text-align: center;
+        margin-top:16px;
+      }
+
+      .parameters {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      paper-fab {
+        background:  var(--app-accent-color);
+      }
+
+      paper-fab.run {
+        position: absolute;
+        right: -16px;
+        bottom: -16px;
+      }
+
+      paper-fab.close {
+        opacity: 0.7;
+      }
+
+
+      [hidden] {
+        display: none;
+      }
+
+      @media (min-width: 860px) {
+        .container {
+          min-width: 0px;
+          max-width: 800px;
+        }
+      }
+    </style>
+
+    <div class="wrapper">
+      <div class="container">
+        <div class="addStep">
+          <div class="label">Add processing step</div>
+          <paper-fab icon$="icons:[[_newProcessIcon(toggled)]]" class$="[[_newProcessIcon(toggled)]]" on-click="toggle"></paper-fab>
+        </div>
+
+        <div class="card">
+          <iron-collapse id="collapse">
+            <div class="container">
+              <div>
+                Pick a plugin:
+                <paper-dropdown-menu label="Plugins">
+                    <paper-listbox slot="dropdown-content" selected="{{selectedPluginIndex}}">
+                      <dom-repeat items="[[plugins]]">
+                        <template>
+                          <paper-item>[[item.data.name]]</paper-item>
+                        </template>
+                      </dom-repeat>
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+              </div>
+            </div>
+            <div class="card-content">
+              <dom-repeat  id="test" items="[[plugins]]" filter="_isPluginSelected">
+                <template>
+                  <div class="parameters">
+                    <dom-repeat items="[[item.parameters]]">
+                      <template>
+                        <chris-parameter
+                          parameter="{{item}}"
+                          name="{{item.data.name}}"
+                          type="{{item.data.type}}"
+                          help="{{item.data.help}}"
+                          default="{{item.data.default}}"
+                          on-value-changed="_valueChanged"
+                          ></chris-parameter>
+                      </template>
+                      </dom-repeat>
+                  </div>
+                </template>
+              </dom-repeat>
+            </div>
+            <div hidden$="[[_noPluginSelected(selectedPluginIndex)]]" class="card-actions">
+              <paper-button on-click="_resetParameters">Reset parameters</paper-button>
+              <paper-fab class="run" icon="av:play-arrow" on-click="_run"></paper-fab>
+            </div>
+          </iron-collapse>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    class ChrisPluginStarter extends Polymer.Element {
+      static get is() { return 'chris-plugin-starter'; }
+
+      static get properties() {
+        return {
+          toggled: {
+            type: Boolean,
+            value: false,
+          },
+          feed: {
+            type: Object,
+            observer: '_feedChanged',
+          },
+          parameters: {
+            type: Object,
+            value: () => {},
+          },
+          plugins: Array,
+          selectedPluginIndex: {
+            type: Number,
+            value: -1,
+            observer: '_selectedPluginIndexChanged',
+          },
+        };
+      }
+
+      _feedChanged(current, previous) {
+        console.log(current);
+      }
+
+      _isPluginSelected(plugin) {
+        const index = this.plugins.indexOf(plugin);
+        return index === this.selectedPluginIndex;
+      }
+
+      _resetParameters() {
+        for (var i=0; i < this.parameters.length; i++) {
+          if (this.parameters[i].target) {
+            this.parameters[i].target.value =
+            this.parameters[i].data.default;
+          }
+        }
+      }
+
+      _run() {
+        const selectedPlugin = this.plugins[this.selectedPluginIndex];
+        const previousPluginInstance = this.feed[this.feed.length - 1];
+        const previousPluginInstanceId = previousPluginInstance.data.id;
+        // start plugin sequence
+        const data = {};
+        data.auth = {
+          type: 'token',
+          token: sessionStorage.getItem('auth-token'),
+        };
+
+        // add templates
+        data.body = {};
+        data.body.template = {};
+        data.body.template.data = [];
+        data.body.data = {};
+
+        // set previous id
+        data.body.template.data.push({
+          name: 'previous_id',
+          value: '',
+        });
+        data.body.data['previous_id'] = previousPluginInstanceId;
+
+        // loop throught parameters
+        for (var i=0; i < this.parameters.length; i++) {
+          let value = '';
+          if (this.parameters[i].target) {
+            value = this.parameters[i].target.value;
+          } else {
+            value = this.parameters[i].data.default;
+          }
+
+          const name = this.parameters[i].data.name;
+          data.body.template.data.push({
+            name,
+            value,
+          });
+          data.body.data[name] = value;
+        }
+
+        const instance = selectedPlugin.links.instances;
+
+        this.dispatchEvent(
+          new CustomEvent('run-plugin', {
+            bubbles: true,
+            composed: true,
+            detail: {
+              instance,
+              data,
+              type: 'ds',
+            },
+          }));
+
+        this.addItem = false;
+        this._resetParameters();
+        this.toggle();
+      }
+
+      _selectedPluginIndexChanged(selectedPluginIndex) {
+        if (selectedPluginIndex >= 0) {
+          this.parameters = this.plugins[selectedPluginIndex].parameters;
+          this._resetParameters();
+        }
+        this.$.test.render();
+      }
+
+      _valueChanged(event) {
+        // make sure we have direct reference to the value from the parameters
+        const parameter = event.currentTarget.parameter;
+        parameter.target = event.currentTarget;
+      }
+
+      toggle() {
+        this.$.collapse.toggle();
+        this.toggled = !this.toggled;
+      }
+
+      _newProcessIcon(toggled) {
+        return toggled ? 'close' : 'add';
+      }
+
+      _noPluginSelected(selectedPluginIndex) {
+        return selectedPluginIndex < 0;
+      }
+    }
+
+    window.customElements.define(ChrisPluginStarter.is, ChrisPluginStarter);
+  </script>
+</dom-module>

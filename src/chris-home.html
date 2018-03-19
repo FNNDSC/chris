@@ -146,7 +146,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-spinner active></paper-spinner> New analysis is being created
     </div>
 
-    <iron-list id="list" items="[]" as="feed" scroll-target="[[scrollTarget]]">
+    <iron-list id="list" items="[]" as="feed" scroll-target="[[scrollTarget]]" mutable-data>
       <template>
         <div class="feed" on-click="_openFeed">
           <div class$="[[_computedClass(feed)]]" tabindex$="[[tabIndex]]">
@@ -154,7 +154,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <div class="avatar">[[feed.data.id]]</div>
               <div class="primary">[[feed.data.name]]</div>
               <div class$="[[feed.class]]">
-                  [[feed.data.modification_date]]
+                  [[feed.data.modification_date]] - [[feed.class]]
               </div>
             </div>
           </div>
@@ -254,6 +254,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _openFeed(event) {
         // keep a list of new items
         const feed = event.model.__data.feed;
+        // const index = event.model.__data.index;
+        // this.$.list.mutableData = true;
+        // this.$.list.items.mutableData = true;
+        // this.$.list.items = [
+        //   ...this.feeds.slice(0, index),
+        //   {
+        //     ...feed,
+        //     class: 'new',
+        //   },
+        //   ...this.feeds.slice(index+1)
+        // ];
+
+        // this.set(['this.$.list.items', index], {
+        //     ...feed,
+        //     class: 'new',
+        //   });
+
+        // this.notifyPath(['this.$.list', index+1, 'class']);
+
         this.dispatchEvent(
           new CustomEvent('open-feed', {detail: {feed}}));
       }

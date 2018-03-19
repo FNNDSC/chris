@@ -16,7 +16,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/iron-icons/av-icons.html">
 
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
@@ -28,11 +27,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="chris-feed-starter">
   <template>
     <style>
-      paper-button {
-        color: black;
-        width: 100%;
-      }
-
       .wrapper {
         width: 100%;
         display: flex;
@@ -46,6 +40,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       .card {
         margin: 16px;
+        margin-top: 0;
         background-color: #ffffff;
         padding: 8px;
       }
@@ -54,11 +49,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         position: relative;
       }
 
+      .newAnalysis {
+        display: flex;
+        color: #fff;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid #fff;
+        margin-left: 16px;
+        margin-right: 16px;
+        padding: 8px;
+      }
+
+      .newAnalysis > .label {
+        margin-right: 12px;
+      }
+
       paper-fab {
+        background:  var(--app-accent-color);
+      }
+
+      paper-fab.close {
+        opacity: 0.7;
+      }
+
+      #starter {
         position: absolute;
         bottom: 0;
         right: 0;
-        background:  var(--app-accent-color);
       }
 
       iron-pages {
@@ -79,9 +96,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <div class="wrapper">
       <div class="container">
-        <div class="card">
-          <paper-button on-click="toggle">Start new analysis</paper-button>
-          <iron-collapse id="collapse">
+        <div class="newAnalysis">
+          <div class="label">Start new analysis</div>
+          <paper-fab icon$="icons:[[_newAnalysisIcon(toggled)]]" class$="[[_newAnalysisIcon(toggled)]]"on-click="toggle"></paper-fab>
+        </div>
+
+        <div >
+          <iron-collapse id="collapse" class="card">
             <paper-tabs
               selected="{{page}}"
               attr-for-selected="name">
@@ -132,6 +153,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             value: 'select',
             observer: '_pageChanged',
           },
+          toggled: {
+            type: Boolean,
+            value: false,
+          },
         };
       }
 
@@ -152,6 +177,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       toggle() {
         this.$.collapse.toggle();
         this.$.dataSelector.reset();
+        this.toggled = !this.toggled;
+      }
+
+      _newAnalysisIcon(toggled) {
+        return toggled ? 'close' : 'add';
       }
 
       _startPlugin() {

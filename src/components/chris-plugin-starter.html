@@ -46,6 +46,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .container {
         width: 100%;
         padding: 10px;
+        box-sizing: border-box;
       }
 
       .addStep {
@@ -82,7 +83,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       paper-fab {
-        background:  var(--app-accent-color);
+        background: var(--app-accent-color);
       }
 
       paper-fab.run {
@@ -92,7 +93,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       paper-fab.close {
-        background: var(--app-accent-color);
+        background: grey;
       }
 
 
@@ -119,8 +120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <iron-collapse id="collapse">
             <div class="container">
               <div>
-                Pick a plugin:
-                <paper-dropdown-menu label="Plugins">
+                <paper-dropdown-menu label="New step">
                     <paper-listbox slot="dropdown-content" selected="{{selectedPluginIndex}}">
                       <dom-repeat items="[[plugins]]">
                         <template>

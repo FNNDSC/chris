@@ -11,6 +11,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
 
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
@@ -76,23 +78,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ></chris-plugin-starter>
 
     <div class="wrapper">
-      <dom-repeat id="test" items="[[feed]]" mutable-data>
+      <dom-repeat id="test" items="[[feed]]" indexAs="index" mutable-data>
         <template>
           <paper-card heading="[[item.data.plugin_name]]" alt="[[item.data.plugin_name]]">
             <div class="card-content">
               ID: [[item.data.id]] by ID: [[item.data.owner]] status: [[item.data.status]]
-              <dom-repeat items="[[feedData]]" as="yo" filter="[[_isPluginSelected(item)]]" mutable-data>
-                  <template>
-                    <div>
-                [[yo.name]]
-                </div>
-                </template>
-              </dom-repeat>
             </div>
             <div class="card-actions">
-              <paper-button>Share</paper-button>
-              <paper-button>Explore!</paper-button>
-              data: [[feedData.length]]
+              <paper-button data-index$="[[index]]" on-click="toggle">Explore!</paper-button>
+              <iron-collapse id$="collapse[[index]]">
+                <dom-repeat items="[[feedData]]" as="yo" filter="[[_isPluginSelected(item)]]" mutable-data>
+                  <template>
+                    <div>[[yo.name]]</div>
+                  </template>
+                </dom-repeat>
+              </iron-collapse>
             </div>
           </paper-card>
         </template>
@@ -128,10 +128,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         ];
       }
 
-      _feedChanged(current, previous) {
-        console.log(current);
-        console.log(previous);
+            // Manages the iron-collapse elements
+      toggle(event) {
+        const collapseElem =
+          this.shadowRoot.querySelector('#collapse'+event.currentTarget.dataset.index);
+        collapseElem.toggle();
+      }
 
+      _feedChanged(current, previous) {
         if (current === undefined) return;
 
         if (current.length === 0) {
@@ -147,14 +151,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _feedDeepChanged(feed) {
         if (feed.path.endsWith('.status')) {
-          console.log(feed);
           this.lastPluginFinishedSuccessfully =
             (feed.value === 'finishedSuccessfully');
         }
       }
 
       _feedDataChanged(feedData) {
-        console.log(feedData);
         this.$.test.render();
       }
 

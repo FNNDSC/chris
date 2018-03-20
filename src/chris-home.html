@@ -266,10 +266,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // keep a list of new items
         const feed = event.model.__data.feed;
         const index = event.model.__data.index;
-        this.set(['localFeeds', index], {
-          ...feed,
-          class: '',
-        });
+        this.set(
+          ['localFeeds', index],
+          Object.assign({}, feed, {
+            class: '',
+          })
+        // {
+        //   ...feed,
+        //   class: '',
+        // }
+        );
 
         this.dispatchEvent(
           new CustomEvent('open-feed', {detail: {feed}}));

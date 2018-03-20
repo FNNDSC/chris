@@ -58,13 +58,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <vaadin-grid-column width="48px" flex-grow="0">
           <template class="header"></template>
           <template>
-            <a href="[[ip]]:[[port]]/[[namespace]][[item.links.file_resource]]"
-              rel="nofollow">
-              <paper-icon-button icon="icons:file-download"></paper-icon-button>
-            </a>
-            
-            <!-- <iron-icon icon="icons:file-download"></iron-icon> -->
-            <!-- <button on-click="_alert">Button</button> -->
+            <paper-icon-button icon="icons:file-download" item="[[item]]" on-click="_downloadFile"></paper-icon-button>
           </template>
         </vaadin-grid-column>
     </vaadin-grid>
@@ -80,8 +74,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           ip: String,
           port: String,
           namespace: String,
-          // may need to watch data
-          // https://github.com/FNNDSC/gex/blob/master/src/gex-library.html#L1021-L1029
           selectedData: {
             type: Array,
             value: [],
@@ -103,6 +95,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _selectedDataChanged() {
         this.dataSelected = (this.selectedData.length > 0);
+      }
+
+      _downloadFile(event) {
+        const token = window.sessionStorage.getItem('auth-token');
+        let headers = new Headers();
+        headers.append('Authorization', `Token ${token}`);
+
+        const item = event.model.__data.item;
+        const file =
+          `${this.ip}:${this.port}/${this.namespace}${item.links.file_resource}`;
+        fetch(file, {headers})
+        .then((response) => response.blob())
+        .then((blobby) => {
+          let objectUrl = window.URL.createObjectURL(blobby);
+
+          const link = document.createElement('a');
+          link.setAttribute('href', objectUrl);
+          const splitted = item.data.upload_path.split('/');
+          const filename = splitted[splitted.length - 1];
+          const extension = filename.includes('.') ? '' : '.dcm';
+          link.setAttribute('download', filename + extension);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          window.URL.revokeObjectURL(objectUrl);
+        });
       }
 
       reset() {

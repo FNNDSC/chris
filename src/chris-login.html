@@ -23,8 +23,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flex-direction: column;
         display: flex;
         overflow-y: auto;
-        /* justify-content: center;
-    align-items: safe center; */
       }
 
       cube-auth, button, chris-footer {
@@ -43,6 +41,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <cube-auth
       app-logo="{{appLogo}}"
+      logo-width="300px"
+      hide-reset-button
       app-title="{{appTitle}}"
       server-ip="[[ip]]"
       server-port="[[port]]"

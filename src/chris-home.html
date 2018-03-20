@@ -74,10 +74,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: var(--app-primary-color);
       }
 
-      .personItem.new {
-        background-color: var(--app-accent-color);
-      }
-
       .avatar {
         height: 40px;
         width: 40px;
@@ -94,6 +90,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         align-items: center;
         @apply --layout-flex;
         @apply --layout-horizontal;
+        position: relative;
+      }
+
+      .label {
+        position: absolute;
+        top: -16px;
+        right: -16px;
+        border-bottom: 2px solid var(--app-accent-color);
       }
 
       .primary {
@@ -146,7 +150,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-spinner active></paper-spinner> New analysis is being created
     </div>
 
-    <iron-list id="list" items="[]" as="feed" scroll-target="[[scrollTarget]]" mutable-data>
+    <iron-list id="list" items="[[localFeeds]]" as="feed" scroll-target="[[scrollTarget]]" mutable-data>
       <template>
         <div class="feed" on-click="_openFeed">
           <div class$="[[_computedClass(feed)]]" tabindex$="[[tabIndex]]">
@@ -154,7 +158,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <div class="avatar">[[feed.data.id]]</div>
               <div class="primary">[[feed.data.name]]</div>
               <div class$="[[feed.class]]">
-                  [[feed.data.modification_date]] - [[feed.class]]
+                  [[feed.data.modification_date]]
+              </div>
+              <div class="label">
+                  [[feed.class]]
               </div>
             </div>
           </div>
@@ -194,6 +201,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Array,
             observer: '_feedsChanged',
           },
+          localFeeds: {
+            type: Array,
+            value: () => [],
+          },
           waitingForNewPlugin: Boolean,
         };
       }
@@ -225,7 +236,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // observe feeds.* to check if a specific property changed?
         if (feeds.length === 0 || this.$.list.items.length === 0) {
           // set / reset
-          this.$.list.set('items', [...feeds]);
+          this.set('localFeeds', [...feeds]);
           this.waitingForNewPlugin = false;
         } else if (feeds.length === this.$.list.items.length) {
           // a property of a feed changed (no element was added/removed)
@@ -235,14 +246,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           feeds[0].data.id !== this.$.list.items[0].data.id) {
           // pre-pend
           feeds[0].class = 'new';
-          this.$.list.unshift('items', feeds[0]);
+          this.unshift('localFeeds', feeds[0]);
           this.waitingForNewPlugin = false;
         } else {
           const numberOfItems = this.$.list.items.length;
           const feedsToBeAdded = feeds.slice(numberOfItems);
 
           // append
-          this.$.list.push('items', ...feedsToBeAdded);
+          this.push('localFeeds', ...feedsToBeAdded);
         }
 
         if(feeds.length > 0) {
@@ -254,24 +265,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _openFeed(event) {
         // keep a list of new items
         const feed = event.model.__data.feed;
-        // const index = event.model.__data.index;
-        // this.$.list.mutableData = true;
-        // this.$.list.items.mutableData = true;
-        // this.$.list.items = [
-        //   ...this.feeds.slice(0, index),
-        //   {
-        //     ...feed,
-        //     class: 'new',
-        //   },
-        //   ...this.feeds.slice(index+1)
-        // ];
-
-        // this.set(['this.$.list.items', index], {
-        //     ...feed,
-        //     class: 'new',
-        //   });
-
-        // this.notifyPath(['this.$.list', index+1, 'class']);
+        const index = event.model.__data.index;
+        this.set(['localFeeds', index], {
+          ...feed,
+          class: '',
+        });
 
         this.dispatchEvent(
           new CustomEvent('open-feed', {detail: {feed}}));

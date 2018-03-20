@@ -68,6 +68,8 @@
         this.fetchFeeds(0, 20);
         // get plugins
         this.fetchPlugins();
+        // get data
+        this.fetchData();
       }
 
       cleanDatastore() {
@@ -233,6 +235,7 @@
         const request = this.$.API.request('GET', 'data', payload);
         request
           .then((response) => {
+            console.log(response.data);
             this.set('data', response.data);
           })
           .catch((response) => {
@@ -320,13 +323,20 @@
             return response;
           })
           // get files feed
-          .then(this.__getFilesPlugin.bind(this, this.$.API, payload))
+          // .then(this.__getFilesPlugin.bind(this, this.$.API, payload))
+          .then((response) => {
+            console.log(response);
+            return this.$.API.request('GET', response.links.feed + 'files/', payload);
+          })
           .then((response) => {
             if (feedId !== this.activeFeedId) {
               return Promise.reject('discard response');
             }
             // update feedsData
             console.log(response);
+            this.push('activeFeedData', {name: 'hello'});
+            this.notifyPath('activeFeedData');
+            console.log(this.activeFeedData);
             return response;
           });
       }

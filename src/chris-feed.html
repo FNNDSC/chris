@@ -30,6 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .loadingIndicator {
         text-align: center;
         height: 40px;
+        color: #fff;
       }
 
       .wrapper {
@@ -64,7 +65,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <div hidden$="[[!waitingForNewPlugin]]" class="loadingIndicator">
-        <paper-spinner active></paper-spinner> Starting plugin....
+      <paper-spinner active></paper-spinner> Starting plugin....
     </div>
 
     <chris-plugin-starter
@@ -75,15 +76,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ></chris-plugin-starter>
 
     <div class="wrapper">
-      <dom-repeat items="[[feed]]" mutable-data>
+      <dom-repeat id="test" items="[[feed]]" mutable-data>
         <template>
           <paper-card heading="[[item.data.plugin_name]]" alt="[[item.data.plugin_name]]">
             <div class="card-content">
               ID: [[item.data.id]] by ID: [[item.data.owner]] status: [[item.data.status]]
+              <dom-repeat items="[[feedData]]" as="yo" filter="[[_isPluginSelected(item)]]" mutable-data>
+                  <template>
+                    <div>
+                [[yo.name]]
+                </div>
+                </template>
+              </dom-repeat>
             </div>
             <div class="card-actions">
               <paper-button>Share</paper-button>
               <paper-button>Explore!</paper-button>
+              data: [[feedData.length]]
             </div>
           </paper-card>
         </template>
@@ -101,6 +110,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Array,
             observer: '_feedChanged',
           },
+          feedData: {
+            type: Array,
+            observer: '_feedDataChanged',
+          },
           plugins: Array,
           waitingForNewPlugin: Boolean,
           lastPluginFinishedSuccessfully: Boolean,
@@ -111,6 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return [
           // Observer method name, followed by a list of dependencies, in parenthesis
           '_feedDeepChanged(feed.*)',
+          '_feedDataChanged(feedData.splices)',
         ];
       }
 
@@ -139,9 +153,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
 
+      _feedDataChanged(feedData) {
+        console.log(feedData);
+        this.$.test.render();
+      }
+
       _runPluginSent() {
         this.lastPluginFinishedSuccessfully = false;
         this.waitingForNewPlugin = true;
+      }
+
+      _isPluginSelected(pluginInstance, data) {
+        // if (data.from instance is plugin instance, show it)
+        return false;
       }
     }
 

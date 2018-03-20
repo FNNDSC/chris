@@ -114,6 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       port="[[port]]"
       namespace="[[namespace]]"
       active-feed="{{activeFeed}}"
+      active-feed-data="{{activeFeedData}}"
       all-feeds-loaded="{{allFeedsLoaded}}"
       feeds="{{feeds}}"
       data="{{data}}"
@@ -178,6 +179,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <chris-feed
             name="feed"
             feed="{{activeFeed}}"
+            feed-data="{{activeFeedData}}"
             plugins="[[pluginsds]]"
             on-run-plugin="_runPlugin"></chris-feed>
           <chris-404 name="404"></chris-404>
@@ -194,11 +196,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return {
           appLogo: {
             type: String,
-            value: 'https://upload.wikimedia.org/wikipedia/commons/0/09/Cube-with-blender.png',
+            value: '/images/chris_white.jpg',
           },
           appTitle: {
             type: String,
-            value: 'chris',
+            value: '',
           },
           ip: {
             type: String,

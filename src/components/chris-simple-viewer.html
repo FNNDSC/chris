@@ -1,0 +1,42 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="chris-simple-viewer">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        position: relative;
+      }
+
+      .container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: cornflowerblue;
+      }
+    </style>
+
+    <div class="container">
+      viewer
+      <div>slider</div>
+      <button on-click="_close">close</button>
+    </div>
+  </template>
+
+  <script>
+    class ChrisSimpleViewer extends Polymer.Element {
+      static get is() { return 'chris-simple-viewer'; }
+
+      _close() {
+        // stop rendering loop
+
+        // fire event
+      }
+    }
+
+    window.customElements.define(ChrisSimpleViewer.is, ChrisSimpleViewer);
+  </script>
+</dom-module>

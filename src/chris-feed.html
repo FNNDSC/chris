@@ -97,7 +97,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <template>
           <paper-card heading="[[item.data.plugin_name]]" alt="[[item.data.plugin_name]]">
             <div class="card-content">
-              ID: [[item.data.id]] by ID: [[item.data.owner]] status: [[item.data.status]]
+              Step [[item.data.revertedIndex]] status: [[item.data.status]]
             </div>
             <div class="card-actions">
               <paper-button data-index$="[[index]]" on-click="toggle">Explore!</paper-button>
@@ -160,6 +160,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             current[0].data.status === 'finishedSuccessfully';
           if (previous === undefined || current.length > previous.length) {
             this.waitingForNewPlugin = false;
+          }
+          // update indices
+          for (let i = 0; i<current.length; i++) {
+            this.feed[i].data.revertedIndex = current.length - i;
           }
         }
       }

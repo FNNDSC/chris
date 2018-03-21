@@ -12,9 +12,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
 
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/image-icons.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
+<link rel="import" href="../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
@@ -32,6 +34,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       vaadin-grid-filter, paper-input {
         width: 100%;
       }
+
+      .details {
+        display: flex;
+      }
+
+      img {
+        width: 96px;
+        height: 96px;
+        margin: 10px;
+      }
     </style>
 
     <vaadin-grid
@@ -40,6 +52,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       multi-sort="true"
       items="[[data]]"
       selected-items="{{selectedData}}">
+
+      <template class="row-details">
+        <div class="details">
+          <img src$="[[item.url]]">
+          <div class="dicom-info">
+            <div class="patient-info">
+              [[item.patientId]] - [[item.patientName]]
+            </div>
+            <div class="series-info">
+              [[item.seriesDescription]]
+            </div>
+            <div class="study-info">
+              [[item.studyDescription]]
+            </div>
+          </div>
+        </div>
+      </template>
 
       <vaadin-grid-selection-column id="selectionColumn" auto-select>
       </vaadin-grid-selection-column>
@@ -56,9 +85,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </vaadin-grid-column>
 
       <vaadin-grid-column width="48px" flex-grow="0">
+        <template class="header"></template>
+        <template>
+          <paper-icon-button icon="icons:file-download" item="[[item]]" on-click="_downloadFile"></paper-icon-button>
+        </template>
+      </vaadin-grid-column>
+  
+      <vaadin-grid-column width="48px" flex-grow="0">
           <template class="header"></template>
           <template>
-            <paper-icon-button icon="icons:file-download" item="[[item]]" on-click="_downloadFile"></paper-icon-button>
+            <!-- <vaadin-checkbox aria-label$="Show Details for [[item.name.first]]" checked="{{detailsOpened}}">Show Details</vaadin-checkbox> -->
+
+            <paper-icon-button hidden$="[[!_showPreview(item)]]" icon="icons:info-outline" item="[[item]]" on-click="_previewFile"></paper-icon-button>
           </template>
         </vaadin-grid-column>
     </vaadin-grid>
@@ -93,14 +131,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         ];
       }
 
+      _onActiveItemChanged(e) {
+        this.$.grid.detailsOpenedItems = [e.detail.value];
+      }
+
       _selectedDataChanged() {
         this.dataSelected = (this.selectedData.length > 0);
       }
 
-      _downloadFile(event) {
+      _prepareHeaders() {
         const token = window.sessionStorage.getItem('auth-token');
         let headers = new Headers();
         headers.append('Authorization', `Token ${token}`);
+
+        return headers;
+      }
+
+      _downloadFile(event) {
+        let headers = this._prepareHeaders();
 
         const item = event.model.__data.item;
         const file =
@@ -124,9 +172,87 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       }
 
+      _previewFile(event) {
+        console.log(event);
+        const detailsAreOpen = event.model.__data.detailsOpened;
+        let index = 0; //event.model.__data.index;
+        console.log(index);
+        // find index in list
+        const item = event.model.__data.item;
+        for (let i=0; i<this.data.length; i++) {
+          if (item.links.file_resource === this.data[i].links.file_resource) {
+            // item.links.file_resource
+            index = i;
+            break;
+          }
+        }
+
+        //          this.$.grid.detailsOpenedItems = [this.data[index]];
+
+        if (detailsAreOpen) {
+          this.$.grid.closeItemDetails(this.data[index]);
+        } else {
+          this.$.grid.openItemDetails(this.data[index]);
+        }
+
+        if (event.model.__data.url) {
+          return;
+        }
+
+        let headers = this._prepareHeaders();
+
+        const file =
+          `${this.ip}:${this.port}/${this.namespace}${item.links.file_resource}`;
+        const fileResource = item.links.file_resource;
+        fetch(file, {headers})
+        .then((response) => response.arrayBuffer())
+        .then((arrayBuffer) => {
+          const loader = new AMI.VolumeLoader();
+          loader.parse({
+            url: file,
+            buffer: arrayBuffer,
+          })
+          .then((series) => {
+            const stack = series.stack[0];
+            stack.prepare();
+            const url =
+              stack.frame[Math.floor(stack.frame.length / 2)].getImageDataUrl();
+
+            // find index of the file ressource
+
+            this.set(['data', index, 'patientId'], series.patientId);
+            this.set(['data', index, 'patientName'], series.patientName);
+            this.set(['data', index, 'seriesDescription'], series.seriesDescription);
+            this.set(['data', index, 'studyDescription'], series.studyDescription);
+            this.set(['data', index, 'url'], url);
+          });
+        });
+      }
+
       reset() {
         this.$.grid.selectedItems = [];
         this._filterPath = '';
+      }
+
+      _showPreview(item) {
+        // console.log(item.data.upload_path);
+        const filename = item.data.upload_path.split('/').pop();
+        const extensionList = filename.split('.');
+
+        let extension = '';
+        if (extensionList.length > 1) {
+          extension = extensionList.pop();
+        }
+
+        // console.log(extension);
+
+        const valid =
+          extension === '' ||
+          extension === 'dcm' ||
+          extension === 'nii' ||
+          extension === 'gz';
+
+        return valid;
       }
     }
 

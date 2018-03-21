@@ -22,6 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="./components/chris-plugin-starter.html">
+<link rel="import" href="./components/chris-data-selector.html">
 
 <dom-module id="chris-feed">
   <template>
@@ -100,13 +101,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               Step [[item.data.revertedIndex]] status: [[item.data.status]]
             </div>
             <div class="card-actions">
-              <paper-button data-index$="[[index]]" on-click="toggle">Explore!</paper-button>
+              <paper-button hidden$="[[_isPluginRunning(item)]]" data-index$="[[index]]" on-click="toggle">Browse data</paper-button>
               <iron-collapse id$="collapse[[index]]">
-                <dom-repeat items="[[feedData]]" as="yo" filter="[[_isPluginSelected(item)]]" mutable-data>
-                  <template>
-                    <div>[[yo.name]]</div>
-                  </template>
-                </dom-repeat>
+                <chris-data-selector
+                  data="[[_filterByPluginInstance(index, feedData)]]"
+                  ip="[[ip]]"
+                  port="[[port]]"
+                  namespace="[[namespace]]">
+                </chris-data-selector>
               </iron-collapse>
             </div>
           </paper-card>
@@ -121,6 +123,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       static get properties() {
         return {
+          ip: String,
+          port: String,
+          namespace: String,
           feed: {
             type: Array,
             observer: '_feedChanged',
@@ -184,9 +189,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.waitingForNewPlugin = true;
       }
 
-      _isPluginSelected(pluginInstance, data) {
+      _filterByPluginInstance(pluginInstanceIndex, feedData) {
         // if (data.from instance is plugin instance, show it)
-        return false;
+        const target = this.feed[pluginInstanceIndex];
+        console.log(target);
+        function myFilter(dataset) {
+          // console.log(dataset);
+          return dataset.data.pluginInstanceId === target.data.id;
+        }
+        // console.log(this.feed[pluginInstanceIndex]);
+        // console.log(pluginInstanceIndex);
+        // console.log(feedData);
+        // console.log(this.feedData[index]);
+        console.log(feedData.filter(myFilter));
+        return feedData.filter(myFilter);
+      }
+
+      _isPluginRunning(item) {
+        console.log(item);
+        console.log(item.data.status === 'started')
+        return item.data.status === 'started';
       }
     }
 

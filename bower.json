@@ -43,7 +43,6 @@
     "webcomponentsjs": "^v1.0.19",
     "vaadin-control-state-mixin": "^2.0.0",
     "vaadin-grid": "^v5.0.0-beta6",
-    "vaadin-checkbox": "^2.0.0",
     "vaadin-text-field": "^2.0.0"
   },
   "devDependencies": {

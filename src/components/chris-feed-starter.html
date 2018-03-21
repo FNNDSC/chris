@@ -212,7 +212,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         ];
 
         data.body.data = {};
-        data.body.data['dir'] = './';
+        data.body.data['dir'] =
+          this.selectedData[0].data.upload_path.split('/').slice(0, -1).join('/');
 
         const simpleFSApp =
           this.plugins.filter(this._findPlugin.bind(this, 'simplefsapp'))[0];

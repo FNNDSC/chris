@@ -323,20 +323,26 @@
             }
             return response;
           })
-          // get files feed
-          // .then(this.__getFilesPlugin.bind(this, this.$.API, payload))
           .then((response) => {
-            console.log(response);
             return this.$.API.request('GET', response.links.feed + 'files/', payload);
           })
           .then((response) => {
             if (feedId !== this.activeFeedId) {
               return Promise.reject('discard response');
             }
+
             // update feedsData
             console.log(response);
-            this.push('activeFeedData', {name: 'hello'});
-            this.notifyPath('activeFeedData');
+            console.log(this.activeFeed);
+            const dataSubset = this.data.slice(0, 40);
+            for(let i=0; i<dataSubset.length; i++) {
+              let randomId = Math.floor(Math.random() * this.activeFeed.length);
+              console.log(randomId);
+              dataSubset[i].data.pluginInstanceId =
+                this.activeFeed[randomId].data.id;
+            }
+            this.set('activeFeedData', dataSubset);
+            // this.notifyPath('activeFeedData');
             console.log(this.activeFeedData);
             return response;
           });

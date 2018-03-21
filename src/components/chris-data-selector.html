@@ -16,7 +16,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
-<link rel="import" href="../../bower_components/vaadin-checkbox/vaadin-checkbox.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
@@ -94,9 +93,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <vaadin-grid-column width="48px" flex-grow="0">
           <template class="header"></template>
           <template>
-            <!-- <vaadin-checkbox aria-label$="Show Details for [[item.name.first]]" checked="{{detailsOpened}}">Show Details</vaadin-checkbox> -->
-
-            <paper-icon-button hidden$="[[!_showPreview(item)]]" icon="icons:info-outline" item="[[item]]" on-click="_previewFile"></paper-icon-button>
+            <paper-icon-button icon="icons:info-outline" item="[[item]]" on-click="_previewFile"></paper-icon-button>
           </template>
         </vaadin-grid-column>
     </vaadin-grid>
@@ -173,22 +170,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _previewFile(event) {
-        console.log(event);
-        const detailsAreOpen = event.model.__data.detailsOpened;
-        let index = 0; //event.model.__data.index;
-        console.log(index);
+        let index = 0;
         // find index in list
         const item = event.model.__data.item;
         for (let i=0; i<this.data.length; i++) {
           if (item.links.file_resource === this.data[i].links.file_resource) {
-            // item.links.file_resource
             index = i;
             break;
           }
         }
 
-        //          this.$.grid.detailsOpenedItems = [this.data[index]];
-
+        const detailsAreOpen = event.model.__data.detailsOpened;
         if (detailsAreOpen) {
           this.$.grid.closeItemDetails(this.data[index]);
         } else {
@@ -203,7 +195,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         const file =
           `${this.ip}:${this.port}/${this.namespace}${item.links.file_resource}`;
-        const fileResource = item.links.file_resource;
         fetch(file, {headers})
         .then((response) => response.arrayBuffer())
         .then((arrayBuffer) => {
@@ -219,6 +210,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               stack.frame[Math.floor(stack.frame.length / 2)].getImageDataUrl();
 
             // find index of the file ressource
+            for (let i=0; i<this.data.length; i++) {
+              if (item.links.file_resource === this.data[i].links.file_resource) {
+                index = i;
+                break;
+              }
+            }
 
             this.set(['data', index, 'patientId'], series.patientId);
             this.set(['data', index, 'patientName'], series.patientName);
@@ -235,7 +232,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _showPreview(item) {
-        // console.log(item.data.upload_path);
+        // hidden$="[[!_showPreview(item)]]"
         const filename = item.data.upload_path.split('/').pop();
         const extensionList = filename.split('.');
 
@@ -243,8 +240,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (extensionList.length > 1) {
           extension = extensionList.pop();
         }
-
-        // console.log(extension);
 
         const valid =
           extension === '' ||

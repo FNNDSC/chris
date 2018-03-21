@@ -33,4 +33,6 @@ RUN yarn add serve
 
 # Start dev server
 EXPOSE 8081
+# sed -i '' 's/__CUBE_IP__/myglobalvar/' /app/src/chris-app.html
+# sed -i '' 's/__CUBE_PORT__/anothervar/' /app/src/chris-app.html
 CMD ./node_modules/serve/bin/serve.js -p 8081 .

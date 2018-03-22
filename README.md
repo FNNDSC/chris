@@ -27,5 +27,5 @@ docker push fnndsc/chris:02
 ## Run dock
 
 ``` bash
-./scripts/docker_start.sh 8081 chris:02
+./scripts/docker_start.sh 8081 chris:02 http://localhost 8001 <OPTIONAL:CUBE_IP, i.e. http://localhost> <OPTIONAL:CUBE_PORT, i.e. 8000>
 ```

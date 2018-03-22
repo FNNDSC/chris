@@ -23,16 +23,25 @@ RUN polymer build
 #
 # Stage 2 - serve the build
 #
+
+# https://stackoverflow.com/questions/40334751/dockerfile-overriding-env-variable
+
 FROM mhart/alpine-node:8.6.0
 
 COPY --from=0 /chris/build/es5-bundled /app
 
+ENV CUBE_IP="http://localhost"
+ENV CUBE_PORT="8001"
+
 WORKDIR /app
 
-RUN yarn add serve
+RUN yarn global add polymer-cli
 
 # Start dev server
 EXPOSE 8081
-# sed -i '' 's/__CUBE_IP__/myglobalvar/' /app/src/chris-app.html
-# sed -i '' 's/__CUBE_PORT__/anothervar/' /app/src/chris-app.html
-CMD ./node_modules/serve/bin/serve.js -p 8081 .
+
+COPY entrypoint.sh /
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD polymer serve --hostname 0.0.0.0 -p 8081 .

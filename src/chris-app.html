@@ -209,11 +209,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           ip: {
             type: String,
-            value: 'http://localhost',
+            value: () => {
+              const globalIp = '__CUBE_IP__';
+              if (globalIp.includes('CUBE_IP')) {
+                // was not overwritten
+                // return default
+                return 'http://localhost';
+              }
+
+              return globalIp;
+              },
           },
           port: {
             type: String,
-            value: '8000',
+            value: () => {
+              const globalPort = '__CUBE_PORT__';
+              if (globalPort.includes('CUBE_PORT')) {
+                // was not overwritten
+                // return default
+                return '8000';
+              }
+
+              return globalPort;
+              },
           },
           namespace: {
             type: String,

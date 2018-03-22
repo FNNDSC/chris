@@ -44,19 +44,58 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: flex;
         flex-direction: column;
         align-items: center;
+        margin-top: 20px;
+        margin-bottom: 10px;
       }
 
       chris-plugin-starter {
         margin-top: 16px;
       }
 
-      paper-card {
+      .plugin-instance {
         width: 100%;
-        margin: auto;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        margin-left: 16px;
-        margin-right: 16px;
+        box-sizing: border-box;
+        padding: 20px;
+        background-color: #d9d9d9;
+        border: 1px solid white;
+        color: #424242;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        margin-top: 16px;
+      }
+
+      .plugin-instance:hover {
+        cursor: pointer;
+        background-color: white;
+        color: black;
+      }
+
+      .plugin-info {
+        display: flex;
+        align-items: center;
+      }
+
+      .plugin-instance:hover .avatar {
+        color: var(--app-primary-color);
+      }
+
+      .avatar {
+        height: 40px;
+        width: 40px;
+        border-radius: 20px;
+        font-size: 32px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .label {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        border-bottom: 2px solid var(--app-accent-color);
       }
 
       paper-fab {
@@ -68,7 +107,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       @media (min-width: 860px) {
-        paper-card {
+        .plugin-instance {
           max-width: 800px;
         }
       }
@@ -96,11 +135,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="wrapper">
       <dom-repeat id="test" items="[[feed]]" indexAs="index" mutable-data>
         <template>
-          <paper-card heading="[[item.data.plugin_name]]" alt="[[item.data.plugin_name]]">
-            <div class="card-content">
-              Step [[item.data.revertedIndex]] status: [[item.data.status]]
+          <div class="plugin-instance">
+            <div class="plugin-info">
+              <div class="avatar">
+                [[item.data.revertedIndex]]
+               </div>
+              [[item.data.plugin_name]]
+            <div class="label">
+              [[item.data.status]]
             </div>
-            <div class="card-actions">
+            </div>
+            <div class="plugin-actions">
               <paper-button hidden$="[[_isPluginRunning(item)]]" data-index$="[[index]]" on-click="toggle">Browse data</paper-button>
               <iron-collapse id$="collapse[[index]]">
                 <chris-data-selector
@@ -111,7 +156,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </chris-data-selector>
               </iron-collapse>
             </div>
-          </paper-card>
+          </div class=".plugin-instance">
         </template>
       </dom-repeat>
     </div>

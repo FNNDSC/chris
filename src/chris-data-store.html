@@ -283,6 +283,7 @@
               let data = {
                 'data': [response.data[i]],
               };
+              console.log(data);
               this._getFilesWhenFinished.bind(this, payload, data, feedId)();
             }
           })
@@ -303,6 +304,7 @@
         console.log(data);
         console.log(feedId);
         return this.__waitEndPlugin(this.$.API, payload, data)
+          .then(this.__wait.bind(this, 5000))
           .then((response) => {
             console.log(feedId);
             console.log(this.activeFeedId);
@@ -324,7 +326,7 @@
             return response;
           })
           .then((response) => {
-            return this.$.API.request('GET', response.links.feed + 'files/', payload);
+            return this.$.API.request('GET', `/${feedId}/files/`, payload);
           })
           .then((response) => {
             if (feedId !== this.activeFeedId) {
@@ -333,6 +335,9 @@
 
             // update feedsData
             console.log(response);
+            // response.data -> list of files
+            // file.data.plugin_inst_id
+
             console.log(this.activeFeed);
             const dataSubset = this.data.slice(0, 40);
             for(let i=0; i<dataSubset.length; i++) {
@@ -341,7 +346,7 @@
               dataSubset[i].data.pluginInstanceId =
                 this.activeFeed[randomId].data.id;
             }
-            this.set('activeFeedData', dataSubset);
+            this.set('activeFeedData', response.data);
             // this.notifyPath('activeFeedData');
             console.log(this.activeFeedData);
             return response;

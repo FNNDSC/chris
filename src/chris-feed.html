@@ -237,10 +237,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _filterByPluginInstance(pluginInstanceIndex, feedData) {
         // if (data.from instance is plugin instance, show it)
         const target = this.feed[pluginInstanceIndex];
-        console.log(target);
         function myFilter(dataset) {
           // console.log(dataset);
-          return dataset.data.pluginInstanceId === target.data.id;
+          return dataset.data.plugin_inst_id === target.data.id;
         }
         // console.log(this.feed[pluginInstanceIndex]);
         // console.log(pluginInstanceIndex);

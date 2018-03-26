@@ -74,13 +74,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <vaadin-grid-column>
         <template class="header">
-          <vaadin-grid-sorter path="data.upload_path">
-            <vaadin-grid-filter aria-label="Path" path="data.upload_path" value="[[_filterPath]]">
+          <vaadin-grid-sorter path$="{{_getPath(data)}}">
+            <vaadin-grid-filter aria-label="Path" path$="{{_getPath(data)}}" value="[[_filterPath]]">
               <paper-input slot="filter" label="Filter data" value="{{_filterPath::input}}"></paper-input>
             </vaadin-grid-filter>
           </vaadin-grid-sorter>
         </template>
-        <template>[[item.data.upload_path]]</template>
+        <template>[[item.data.fname]][[item.data.upload_path]]</template>
       </vaadin-grid-column>
 
       <vaadin-grid-column width="48px" flex-grow="0">
@@ -93,7 +93,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <vaadin-grid-column width="48px" flex-grow="0">
           <template class="header"></template>
           <template>
-            <paper-icon-button icon="icons:info-outline" item="[[item]]" on-click="_previewFile"></paper-icon-button>
+            <paper-icon-button hidden$="[[!_showPreview(item)]]" icon="icons:info-outline" item="[[item]]" on-click="_previewFile"></paper-icon-button>
           </template>
         </vaadin-grid-column>
     </vaadin-grid>
@@ -157,7 +157,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           const link = document.createElement('a');
           link.setAttribute('href', objectUrl);
-          const splitted = item.data.upload_path.split('/');
+          let splitted = '';
+          if ( item.data.upload_path !== undefined) {
+            splitted = item.data.upload_path.split('/');
+          } else {
+            splitted = item.data.fname.split('/');
+          }
+
           const filename = splitted[splitted.length - 1];
           const extension = filename.includes('.') ? '' : '.dcm';
           link.setAttribute('download', filename + extension);
@@ -232,8 +238,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _showPreview(item) {
-        // hidden$="[[!_showPreview(item)]]"
-        const filename = item.data.upload_path.split('/').pop();
+        let filename = '';
+        if ( item.data.upload_path !== undefined) {
+          filename = item.data.upload_path.split('/').pop();
+        } else {
+          filename = item.data.fname.split('/').pop();
+        }
+
         const extensionList = filename.split('.');
 
         let extension = '';
@@ -248,6 +259,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           extension === 'gz';
 
         return valid;
+      }
+
+      _getPath(data) {
+        if ( data.upload_path !== undefined) {
+          return 'data.upload_path';
+        } else {
+          return 'data.fname';
+        }
       }
     }
 

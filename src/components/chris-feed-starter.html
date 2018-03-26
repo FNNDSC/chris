@@ -216,7 +216,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.selectedData[0].data.upload_path.split('/').slice(0, -1).join('/');
 
         const simpleFSApp =
-          this.plugins.filter(this._findPlugin.bind(this, 'simplefsapp'))[0];
+          this.plugins.filter(this._findPlugin.bind(this, 'pl-dircopy'))[0];
         const instance = simpleFSApp.links.instances;
 
         this.dispatchEvent(

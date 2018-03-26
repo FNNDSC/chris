@@ -17,11 +17,16 @@ polymer serve
 
 Styling.
 
-## Push a new version to docker hub
+## Build new dock
 
 ``` bash
 ./scripts/docker_build.sh fnndsc/chris:0.2
-docker push fnndsc/chris:02
+```
+
+## Build and push dock to Dockerhub
+
+``` bash
+./scripts/docker_deploy.sh fnndsc/chris:0.2
 ```
 
 ## Run dock

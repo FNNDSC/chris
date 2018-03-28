@@ -261,8 +261,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return valid;
       }
 
-      _getPath(data) {
-        if ( data.upload_path !== undefined) {
+      _getPath(items) {
+        if (items.length === 0) return '';
+
+        if ( items[0].data.upload_path !== undefined) {
           return 'data.upload_path';
         } else {
           return 'data.fname';

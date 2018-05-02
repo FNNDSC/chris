@@ -78,6 +78,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         justify-content: center;
       }
 
+      .description {
+        font-size: 16px;
+      }
+
+      .author {
+        font-size: 14px;
+        color: grey;
+        margin-bottom: 24px;
+      }
+
+      .splitter {
+        border-bottom: 1px solid lightGrey;
+      }
+
       paper-fab {
         background: var(--app-accent-color);
       }
@@ -120,7 +134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <paper-listbox slot="dropdown-content" selected="{{selectedPluginIndex}}">
                       <dom-repeat items="[[plugins]]">
                         <template>
-                          <paper-item>[[item.data.name]]</paper-item>
+                          <paper-item>[[item.data.title]] ([[item.data.version]])</paper-item>
                         </template>
                       </dom-repeat>
                     </paper-listbox>
@@ -130,6 +144,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="card-content">
               <dom-repeat  id="test" items="[[plugins]]" filter="_isPluginSelected">
                 <template>
+                  <div class="splitter">About</div>
+                  <div class="description">[[item.data.description]]</div>
+                  <div class="author">[[item.data.authors]]</div>
+                  <div class="splitter">Parameters</div>
                   <div class="parameters">
                     <dom-repeat items="[[item.parameters]]">
                       <template>

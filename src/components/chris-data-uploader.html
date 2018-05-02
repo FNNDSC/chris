@@ -30,9 +30,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <div class="card">
       <paper-input
-        label="Group"
+        id="location"
+        label="Upload location"
+        error-message="Please provide an upload location"
         value="{{prefix}}"
-        placeholder="Group data to be uploaded for easy access (i.e. Brain T1)"></paper-input>
+        required
+        placeholder="Location where the data will be uploaded"></paper-input>
      <vaadin-upload
        id="requestDemo"
        target="[[ip]]:[[port]]/[[namespace]]/uploadedfiles/"
@@ -64,6 +67,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.upload.addEventListener('upload-request', (event) => {
           event.preventDefault();
           const token = window.sessionStorage.getItem('auth-token');
+          const validLocation = this.$.location.validate();
+          if (!validLocation) {
+            console.log('no valid');
+            this.upload.files = [];
+            return;
+          }
 
           const formData = new FormData();
           event.detail.xhr.setRequestHeader('Authorization', `Token ${token}`);

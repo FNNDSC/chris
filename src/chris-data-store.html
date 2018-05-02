@@ -93,10 +93,10 @@
                 return Promise.reject('discard response');
               }
 
-              const activeFeed = this.activeFeed;
-              this.set('activeFeed', [response.data[0], ...activeFeed]);
+              this.push('activeFeed', response.data[0]);
               const payload2 = this._initPayload();
-              return this._getFilesWhenFinished.bind(this, payload2, response, feedId)();
+              return this._getFilesWhenFinished.bind(
+                this, payload2, response, feedId)();
             }
 
             // add feed to the list of feeds
@@ -272,8 +272,10 @@
             }
 
             const activeFeed = response.data.sort((a, b) => {
-              return b.data.id - a.data.id;
+              return a.data.id - b.data.id;
             });
+            console.log('activeFeed');
+            console.log(activeFeed);
             // sort data
             this.set('activeFeed', activeFeed);
 
@@ -313,43 +315,43 @@
             }
             // update plugin status
             console.log(response);
+            console.log(this.activeFeed);
             for (let i = 0; i < this.activeFeed.length; i++) {
               console.log( this.activeFeed[i]);
               if (response.data.id === this.activeFeed[i].data.id) {
                 if (response.data.status !== this.activeFeed[i].data.status) {
+                  console.log('set it');
                   this.set([`activeFeed.${i}.data.status`], response.data.status);
                   this.notifyPath(`activeFeed.${i}.data.status`);
                   console.log(this.activeFeed[i].data.status);
+                  console.log('done');
                 }
               }
             }
             return response;
           })
-          .then((response) => {
+          .then((response2) => {
             return this.$.API.request('GET', `/${feedId}/files/`, payload);
           })
-          .then((response) => {
-            if (feedId !== this.activeFeedId) {
+          .then((response3) => {
+            console.log('test response');
+            console.log(feedId);
+            console.log(response3);
+            console.log(this.activeFeedId);
+            if (Number(feedId) !== Number(this.activeFeedId)) {
               return Promise.reject('discard response');
             }
 
             // update feedsData
-            console.log(response);
+            console.log(response3);
             // response.data -> list of files
             // file.data.plugin_inst_id
 
-            console.log(this.activeFeed);
-            const dataSubset = this.data.slice(0, 40);
-            for(let i=0; i<dataSubset.length; i++) {
-              let randomId = Math.floor(Math.random() * this.activeFeed.length);
-              console.log(randomId);
-              dataSubset[i].data.pluginInstanceId =
-                this.activeFeed[randomId].data.id;
-            }
-            this.set('activeFeedData', response.data);
+            console.log(this.activeFeedData);
+            this.set('activeFeedData', response3.data);
             // this.notifyPath('activeFeedData');
             console.log(this.activeFeedData);
-            return response;
+            return response3;
           });
       }
     }

@@ -29,7 +29,7 @@
     "paper-tooltip": "^2.1.1",
     "paper-checkbox": "^2.0.2",
     "paper-input": "^2.2.0",
-    "vaadin-grid": "vaadin/vaadin-grid#^v5.0.0-beta6",
+    "vaadin-grid": "vaadin/vaadin-grid#^v5.0.0-beta8",
     "paper-fab": "^2.1.0",
     "iron-icons": "^2.1.1",
     "iron-collapse": "^2.2.0",

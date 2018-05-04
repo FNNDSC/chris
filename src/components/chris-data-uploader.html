@@ -81,7 +81,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           formData.append('fname', file);
           formData.append(
             'upload_path',
-            String(Date.now()) + '/' + this.prefix + '/' + event.detail.file.name);
+            '/' + this.prefix + '/' + event.detail.file.name);
           event.detail.xhr.send(formData);
         });
 

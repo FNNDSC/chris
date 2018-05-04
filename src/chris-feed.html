@@ -105,40 +105,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .started {
         display: inline-block;;
         -webkit-animation: rotating 2s linear infinite;
-  -moz-animation: rotating 2s linear infinite;
-  -ms-animation: rotating 2s linear infinite;
-  -o-animation: rotating 2s linear infinite;
-  animation: rotating 2s linear infinite;
+        -moz-animation: rotating 2s linear infinite;
+        -ms-animation: rotating 2s linear infinite;
+        -o-animation: rotating 2s linear infinite;
+        animation: rotating 2s linear infinite;
       }
 
       @-webkit-keyframes rotating /* Safari and Chrome */ {
-  from {
-    -webkit-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(360deg);
-    -o-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-@keyframes rotating {
-  from {
-    -ms-transform: rotate(0deg);
-    -moz-transform: rotate(0deg);
-    -webkit-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  to {
-    -ms-transform: rotate(360deg);
-    -moz-transform: rotate(360deg);
-    -webkit-transform: rotate(360deg);
-    -o-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
+        from {
+          -webkit-transform: rotate(0deg);
+          -o-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        to {
+          -webkit-transform: rotate(360deg);
+          -o-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes rotating {
+        from {
+          -ms-transform: rotate(0deg);
+          -moz-transform: rotate(0deg);
+          -webkit-transform: rotate(0deg);
+          -o-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        to {
+          -ms-transform: rotate(360deg);
+          -moz-transform: rotate(360deg);
+          -webkit-transform: rotate(360deg);
+          -o-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+
       paper-fab {
         right: 8px;
         top: 72px;
@@ -189,6 +191,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="plugin-actions">
               <paper-button hidden$="[[_isPluginRunning(item)]]" data-index$="[[index]]" on-click="toggle">Browse data</paper-button>
+              <paper-button hidden$="[[_isPluginRunning(item)]]" data-index$="[[index]]" on-click="openRAV">RAV data</paper-button>
               <iron-collapse id$="collapse[[index]]">
                 <chris-data-selector
                   data="[[_filterByPluginInstance(index, feedData)]]"
@@ -226,26 +229,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             value: false,
           },
           lastPluginFinishedSuccessfully: Boolean,
+          ravLocation: String,
         };
       }
 
       static get observers() {
         return [
-          // Observer method name, followed by a list of dependencies, in parenthesis
           '_feedDeepChanged(feed.*)',
           '_feedDataChanged(feedData.splices)',
         ];
       }
 
-            // Manages the iron-collapse elements
+      // Manages the iron-collapse elements
       toggle(event) {
         const collapseElem =
-          this.shadowRoot.querySelector('#collapse'+event.currentTarget.dataset.index);
+          this.shadowRoot.querySelector(
+            '#collapse' + event.currentTarget.dataset.index);
         collapseElem.toggle();
       }
 
+      openRAV(event) {
+        const index = event.currentTarget.dataset.index;
+        let queryParameters = '';
+
+        const feed = this.feed[0].links.feed;
+        queryParameters += `feed-link=${feed}files/&`;
+
+        const pluginInstanceId = this.feed[index].data.id;
+        queryParameters += `plugin-id=${pluginInstanceId}&`;
+
+        const token = sessionStorage.getItem('auth-token');
+        queryParameters += `token=${token}&`;
+
+        // CUBE location
+        queryParameters += `chris-ip=${this.ip}&`;
+        queryParameters += `chris-port=${this.port}&`;
+        queryParameters += `chris-namespace=${this.namespace}`;
+
+        window.open(
+          `${this.ravLocation}/viewer/chris?${queryParameters}`,
+          'rav',
+          []);
+      }
+
       _feedDeepChanged(feed) {
-        console.log(feed);
         if (feed.path === 'feed') {
           // initiating
           if (feed.value.length === 0) {
@@ -290,20 +317,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // if (data.from instance is plugin instance, show it)
         const target = this.feed[pluginInstanceIndex];
         function myFilter(dataset) {
-          // console.log(dataset);
           return dataset.data.plugin_inst_id === target.data.id;
         }
-        // console.log(this.feed[pluginInstanceIndex]);
-        // console.log(pluginInstanceIndex);
-        // console.log(feedData);
-        // console.log(this.feedData[index]);
-        console.log(feedData.filter(myFilter));
         return feedData.filter(myFilter);
       }
 
       _isPluginRunning(item) {
-        console.log(item);
-        console.log(item.data.status === 'started')
         return item.data.status === 'started';
       }
     }

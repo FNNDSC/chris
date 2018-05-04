@@ -186,6 +186,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             namespace="[[namespace]]"
             feed-data="{{activeFeedData}}"
             plugins="[[pluginsds]]"
+            rav-location="[[ravLocation]]"
             on-run-plugin="_runPlugin"></chris-feed>
           <chris-404 name="404"></chris-404>
         </iron-pages>
@@ -231,11 +232,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
 
               return globalPort;
-              },
+            },
           },
           namespace: {
             type: String,
             value: 'api/v1',
+          },
+          ravLocation: {
+            type: String,
+            value: () => {
+              const ravLocation = '__RAV_LOCATION__';
+              if (ravLocation.includes('__RAV_LOCATION__')) {
+                // was not overwritten
+                // return default
+                return 'http://localhost:8081';
+              }
+
+              return ravLocation;
+            },
           },
           page: {
             type: String,

@@ -32,6 +32,7 @@ COPY --from=0 /chris/build/es5-bundled /app
 
 ENV CUBE_IP="http://localhost"
 ENV CUBE_PORT="8001"
+ENV RAV_LOCATION="http://fnndsc.childrens.harvard.edu:8001"
 
 WORKDIR /app
 
